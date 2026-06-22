@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { ContactService } from '@core/services/contact.service';
 import { CrmContact } from '@core/models/contact.model';
+import { usPhoneE164 } from '@shared/directives/us-phone.directive';
 
 @Component({
   selector: 'app-preparer-contacts',
@@ -153,7 +154,7 @@ export class ContactsComponent implements OnInit {
   }
 
   private tel(p: string | null): string {
-    return (p ?? '').replace(/[^\d+]/g, '');
+    return usPhoneE164(p);
   }
 
   private async stamp(list: CrmContact[]): Promise<void> {

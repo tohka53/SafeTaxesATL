@@ -42,7 +42,7 @@
           <input *ngSwitchCase="'number'" class="input" type="number" [formControlName]="fld.name" />
           <input *ngSwitchCase="'date'" class="input" type="date" [formControlName]="fld.name" />
           <input *ngSwitchCase="'email'" class="input" type="email" [formControlName]="fld.name" />
-          <input *ngSwitchCase="'tel'" class="input" type="tel" [formControlName]="fld.name" />
+          <input *ngSwitchCase="'tel'" class="input" type="tel" appUsPhone [formControlName]="fld.name" maxlength="14" placeholder="(404) 555-0123" />
           <input *ngSwitchDefault class="input" type="text" [formControlName]="fld.name" autocomplete="off" />
         </ng-container>
       </div>

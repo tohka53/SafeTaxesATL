@@ -149,8 +149,8 @@
         </div>
         <div><label class="label">{{ 'form.zip' | translate }}</label><input class="input" type="text" formControlName="se_zip" /></div>
       </div>
-      <div><label class="label">{{ 'pf.phone' | translate }}</label><input class="input" type="tel" formControlName="se_phone" /></div>
-      <div><label class="label">{{ 'pf.workPhone' | translate }}</label><input class="input" type="tel" formControlName="se_work" /></div>
+      <div><label class="label">{{ 'pf.phone' | translate }}</label><input class="input" type="tel" appUsPhone formControlName="se_phone" /></div>
+      <div><label class="label">{{ 'pf.workPhone' | translate }}</label><input class="input" type="tel" appUsPhone formControlName="se_work" /></div>
       <div class="sm:col-span-2"><label class="label">{{ 'form.email' | translate }}</label><input class="input" type="email" formControlName="se_email" /></div>
     </div>
   </div>
@@ -263,10 +263,10 @@
       </div>
       <div><label class="label">{{ 'form.zip' | translate }}</label><input class="input" type="text" maxlength="10" formControlName="zip" /></div>
     </div>
-    <div><label class="label">{{ 'pf.cell' | translate }}</label><input class="input" type="tel" formControlName="cell" /></div>
+    <div><label class="label">{{ 'pf.cell' | translate }}</label><input class="input" type="tel" appUsPhone formControlName="cell" /></div>
     <div class="grid grid-cols-2 gap-4">
-      <div><label class="label">{{ 'pf.workPhone' | translate }}</label><input class="input" type="tel" formControlName="work" /></div>
-      <div><label class="label">{{ 'pf.homePhone' | translate }}</label><input class="input" type="tel" formControlName="home" /></div>
+      <div><label class="label">{{ 'pf.workPhone' | translate }}</label><input class="input" type="tel" appUsPhone formControlName="work" /></div>
+      <div><label class="label">{{ 'pf.homePhone' | translate }}</label><input class="input" type="tel" appUsPhone formControlName="home" /></div>
     </div>
     <div><label class="label">{{ 'form.email' | translate }}</label><input class="input" type="email" formControlName="email" /></div>
     <div class="grid grid-cols-2 gap-4">

@@ -41,7 +41,7 @@
     <h3 class="mb-4 text-base font-semibold text-gray-900">{{ (editingId ? 'common.edit' : 'contacts.new') | translate }}</h3>
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div><label class="label">{{ 'contacts.name' | translate }}</label><input class="input" type="text" [(ngModel)]="editModel.full_name" /></div>
-      <div><label class="label">{{ 'contacts.phone' | translate }}</label><input class="input" type="tel" [(ngModel)]="editModel.phone" placeholder="(404) 555-0123" /></div>
+      <div><label class="label">{{ 'contacts.phone' | translate }}</label><input class="input" type="tel" appUsPhone [(ngModel)]="editModel.phone" maxlength="14" placeholder="(404) 555-0123" /></div>
       <div><label class="label">{{ 'contacts.email' | translate }}</label><input class="input" type="email" [(ngModel)]="editModel.email" /></div>
       <div class="sm:col-span-2"><label class="label">{{ 'contacts.notes' | translate }}</label><textarea class="input" rows="2" [(ngModel)]="editModel.notes"></textarea></div>
     </div>

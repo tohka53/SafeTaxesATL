@@ -12,6 +12,7 @@ import { ProcessStepperComponent } from './components/process-stepper/process-st
 import { ClientProfileFormComponent } from './components/client-profile-form/client-profile-form.component';
 import { ShellComponent } from './components/shell/shell.component';
 import { DynamicFormComponent } from './components/dynamic-form/dynamic-form.component';
+import { UsPhoneDirective } from './directives/us-phone.directive';
 
 const SHARED_COMPONENTS = [
   NavbarComponent,
@@ -21,7 +22,8 @@ const SHARED_COMPONENTS = [
   ProcessStepperComponent,
   ClientProfileFormComponent,
   ShellComponent,
-  DynamicFormComponent
+  DynamicFormComponent,
+  UsPhoneDirective
 ];
 
 @NgModule({
