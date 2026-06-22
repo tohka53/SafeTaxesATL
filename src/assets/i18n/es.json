@@ -223,7 +223,9 @@
     "sendEmail": "Enviar correo",
     "sendSms": "Enviar SMS",
     "scopeHint": "Correo/SMS se aplica a los seleccionados, o a todos si no hay selección.",
-    "noRecipients": "No hay destinatarios con ese dato."
+    "noRecipients": "No hay destinatarios con ese dato.",
+    "message": "Mensaje (opcional, se precarga en SMS/correo)",
+    "phoneHint": "Para enviar SMS, abre el CRM desde tu celular y toca 💬: se abre la app de Mensajes con el número y el texto listos."
   },
   "ext": {
     "title": "Formularios recibidos (externos)",

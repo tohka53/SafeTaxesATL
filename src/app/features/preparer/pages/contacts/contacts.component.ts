@@ -13,6 +13,7 @@ export class ContactsComponent implements OnInit {
   importing = false;
   contacts: CrmContact[] = [];
   q = '';
+  outreachMessage = '';
   selected = new Set<string>();
 
   showForm = false;
@@ -163,13 +164,28 @@ export class ContactsComponent implements OnInit {
     }
   }
 
+  private mailParams(): string[] {
+    const m = this.outreachMessage.trim();
+    const arr = [`subject=${encodeURIComponent('Safe Taxes ATL')}`];
+    if (m) {
+      arr.push(`body=${encodeURIComponent(m)}`);
+    }
+    return arr;
+  }
+
+  private smsBody(): string {
+    const m = this.outreachMessage.trim();
+    return m ? `?body=${encodeURIComponent(m)}` : '';
+  }
+
   async emailScope(): Promise<void> {
     const list = this.recipients();
     const emails = list.map((c) => c.email).filter((e): e is string => !!e);
     if (!emails.length) {
       return;
     }
-    window.location.href = `mailto:?bcc=${encodeURIComponent(emails.join(','))}`;
+    const params = [`bcc=${encodeURIComponent(emails.join(','))}`, ...this.mailParams()];
+    window.location.href = `mailto:?${params.join('&')}`;
     await this.stamp(list);
   }
 
@@ -179,7 +195,7 @@ export class ContactsComponent implements OnInit {
     if (!phones.length) {
       return;
     }
-    window.location.href = `sms:${phones.join(',')}`;
+    window.location.href = `sms:${phones.join(',')}${this.smsBody()}`;
     await this.stamp(list);
   }
 
@@ -187,7 +203,8 @@ export class ContactsComponent implements OnInit {
     if (!c.email) {
       return;
     }
-    window.location.href = `mailto:${c.email}`;
+    const params = this.mailParams();
+    window.location.href = `mailto:${c.email}?${params.join('&')}`;
     void this.markOne(c);
   }
 
@@ -196,7 +213,7 @@ export class ContactsComponent implements OnInit {
     if (!p) {
       return;
     }
-    window.location.href = `sms:${p}`;
+    window.location.href = `sms:${p}${this.smsBody()}`;
     void this.markOne(c);
   }
 

@@ -223,7 +223,9 @@
     "sendEmail": "Send email",
     "sendSms": "Send text",
     "scopeHint": "Email/SMS applies to selected, or to all if none selected.",
-    "noRecipients": "No recipients with that field."
+    "noRecipients": "No recipients with that field.",
+    "message": "Message (optional, prefilled into SMS/email)",
+    "phoneHint": "To send SMS, open the CRM on your phone and tap 💬: the Messages app opens with the number and text ready."
   },
   "ext": {
     "title": "Received forms (external)",
