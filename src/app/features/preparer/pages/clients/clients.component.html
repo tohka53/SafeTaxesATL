@@ -1,0 +1,42 @@
+<section class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+  <header class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold text-gray-900">{{ 'preparer.clientsTitle' | translate }}</h1>
+      <p class="mt-1 text-gray-600">{{ 'preparer.clientsSubtitle' | translate }}</p>
+    </div>
+    <a *ngIf="isAdmin" routerLink="/preparer/leads" class="btn-secondary">📥 {{ 'nav2.external' | translate }}</a>
+  </header>
+
+  <div class="mb-5">
+    <input class="input" type="text" [(ngModel)]="q" [placeholder]="'preparer.searchClients' | translate" />
+  </div>
+
+  <div *ngIf="loading" class="text-gray-500">{{ 'common.loading' | translate }}</div>
+
+  <div *ngIf="!loading && !filtered.length" class="card text-center text-gray-500">
+    {{ 'common.noResults' | translate }}
+  </div>
+
+  <div *ngIf="!loading && filtered.length" class="overflow-hidden rounded-xl border border-gray-200 bg-white">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
+        <tr>
+          <th class="px-4 py-3">{{ 'form.fullName' | translate }}</th>
+          <th class="px-4 py-3">{{ 'auth.email' | translate }}</th>
+          <th class="px-4 py-3">{{ 'form.phone' | translate }}</th>
+          <th class="px-4 py-3 text-right">{{ 'common.actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <tr *ngFor="let c of filtered" class="cursor-pointer hover:bg-gray-50" (click)="open(c)">
+          <td class="px-4 py-3 font-medium text-gray-900">{{ c.full_name || '—' }}</td>
+          <td class="px-4 py-3 text-gray-600">{{ c.email }}</td>
+          <td class="px-4 py-3 text-gray-600">{{ c.phone || '—' }}</td>
+          <td class="px-4 py-3 text-right">
+            <span class="btn-primary !px-3 !py-1.5 text-xs">{{ 'common.open' | translate }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -1,0 +1,75 @@
+<div class="flex min-h-screen bg-gray-50">
+  <!-- Sidebar -->
+  <aside
+    class="fixed inset-y-0 left-0 z-40 w-64 transform border-r border-gray-200 bg-white transition-transform md:static md:translate-x-0"
+    [class.-translate-x-full]="!sidebarOpen"
+  >
+    <div class="flex h-16 items-center gap-2 border-b border-gray-200 px-5">
+      <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-sm font-extrabold text-white">ST</span>
+      <span class="font-extrabold tracking-tight text-gray-900">Safe Taxes <span class="text-brand-600">ATL</span></span>
+    </div>
+
+    <nav class="flex flex-col gap-1 p-3" (click)="sidebarOpen = false">
+      <a routerLink="/client" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="bg-brand-50 text-brand-700"
+         class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+        <span>🏠</span> {{ 'nav.dashboard' | translate }}
+      </a>
+      <a routerLink="/client/forms" routerLinkActive="bg-brand-50 text-brand-700"
+         class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+        <span>🗂️</span> {{ 'nav.myForms' | translate }}
+      </a>
+      <a routerLink="/client/status" routerLinkActive="bg-brand-50 text-brand-700"
+         class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+        <span>📊</span> {{ 'nav.taxStatus' | translate }}
+      </a>
+      <a routerLink="/client/profile" routerLinkActive="bg-brand-50 text-brand-700"
+         class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+        <span>👤</span> {{ 'nav.profile' | translate }}
+      </a>
+
+      <ng-container *ngIf="auth.profile$ | async as p">
+        <ng-container *ngIf="isStaff(p.role)">
+          <div class="mt-4 px-3 text-xs font-semibold uppercase tracking-wide text-gray-400">CRM</div>
+          <a routerLink="/preparer" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="bg-brand-50 text-brand-700"
+             class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+            <span>👥</span> {{ 'nav.clients' | translate }}
+          </a>
+          <a *ngIf="isAdmin(p.role)" routerLink="/preparer/leads" routerLinkActive="bg-brand-50 text-brand-700"
+             class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+            <span>📥</span> {{ 'nav2.external' | translate }}
+          </a>
+        </ng-container>
+      </ng-container>
+    </nav>
+  </aside>
+
+  <!-- Backdrop (mobile) -->
+  <div *ngIf="sidebarOpen" (click)="sidebarOpen = false" class="fixed inset-0 z-30 bg-black/30 md:hidden"></div>
+
+  <!-- Main column -->
+  <div class="flex min-w-0 flex-1 flex-col">
+    <header class="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6">
+      <button type="button" (click)="sidebarOpen = !sidebarOpen" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 md:hidden" aria-label="menu">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <span class="hidden text-sm font-semibold text-gray-500 md:block">{{ 'app.name' | translate }}</span>
+      <div class="flex items-center gap-3">
+        <app-language-switcher></app-language-switcher>
+        <div class="hidden text-right sm:block" *ngIf="auth.profile$ | async as p">
+          <p class="text-sm font-semibold text-gray-900">{{ p.full_name || p.email }}</p>
+          <p class="text-xs text-gray-400">{{ 'role.' + p.role | translate }}</p>
+        </div>
+        <button type="button" (click)="logout()" class="btn-secondary !px-3 !py-1.5 text-xs">{{ 'nav.logout' | translate }}</button>
+      </div>
+    </header>
+
+    <main class="flex-1">
+      <router-outlet></router-outlet>
+    </main>
+
+    <footer class="border-t border-gray-200 bg-white px-4 py-3 text-center text-xs text-gray-400">
+      © {{ year }} Safe Taxes ATL · {{ 'footer.madeBy' | translate }}
+      <a href="https://www.techsolutionsgt.dev/" target="_blank" rel="noopener noreferrer" class="font-semibold text-brand-600 hover:underline">TechSolutions</a>
+    </footer>
+  </div>
+</div>

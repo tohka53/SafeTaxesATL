@@ -1,0 +1,31 @@
+<section class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+  <header class="mb-6 flex items-center justify-between">
+    <h1 class="text-2xl font-extrabold text-gray-900">{{ title }}</h1>
+    <a routerLink="/client/forms" class="text-sm font-semibold text-brand-600 hover:underline">← {{ 'common.back' | translate }}</a>
+  </header>
+
+  <div *ngIf="loading" class="text-gray-500">{{ 'common.loading' | translate }}</div>
+
+  <ng-container *ngIf="!loading">
+    <app-client-profile-form
+      *ngIf="isCustom"
+      mode="internal"
+      [initial]="initial"
+      [userId]="userId"
+      [locked]="locked"
+      (saveDraft)="onSaveDraft($event)"
+      (submitted)="onSubmit($event)"
+    ></app-client-profile-form>
+
+    <app-dynamic-form
+      *ngIf="!isCustom && def"
+      [def]="def"
+      mode="internal"
+      [initial]="initial"
+      [userId]="userId"
+      [locked]="locked"
+      (saveDraft)="onSaveDraft($event)"
+      (submitted)="onSubmit($event)"
+    ></app-dynamic-form>
+  </ng-container>
+</section>

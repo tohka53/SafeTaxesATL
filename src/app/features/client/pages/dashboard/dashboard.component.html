@@ -1,0 +1,78 @@
+<section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+  <header class="mb-8">
+    <h1 class="text-2xl font-extrabold text-gray-900">
+      {{ 'client.welcome' | translate }}<span *ngIf="(auth.profile$ | async) as p">, {{ p.full_name || p.email }}</span>
+    </h1>
+    <p class="mt-1 text-gray-600">{{ 'client.dashboardSubtitle' | translate }}</p>
+  </header>
+
+  <div *ngIf="loading" class="text-gray-500">{{ 'common.loading' | translate }}</div>
+
+  <ng-container *ngIf="!loading">
+    <!-- Current year process -->
+    <div class="card mb-8">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-900">{{ 'client.currentYear' | translate }} — {{ currentYear }}</h2>
+        <a routerLink="/client/status" class="text-sm font-semibold text-brand-600 hover:underline">{{ 'nav.taxStatus' | translate }}</a>
+      </div>
+      <app-process-stepper *ngIf="currentForm" [current]="currentForm.process_status"></app-process-stepper>
+      <div *ngIf="!currentForm" class="rounded-lg bg-gray-50 p-4 text-sm text-gray-600">
+        {{ 'client.myFormsEmpty' | translate }}
+        <a routerLink="/client/forms" class="ml-1 font-semibold text-brand-600 hover:underline">{{ 'client.startForm' | translate }}</a>
+      </div>
+    </div>
+
+    <!-- Quick cards -->
+    <div class="mb-8 grid gap-4 sm:grid-cols-3">
+      <a routerLink="/client/forms" class="card transition hover:shadow-md">
+        <p class="text-sm text-gray-500">{{ 'client.myFormsTitle' | translate }}</p>
+        <p class="mt-1 text-3xl font-extrabold text-brand-600">{{ forms.length }}</p>
+      </a>
+      <a routerLink="/client/status" class="card transition hover:shadow-md">
+        <p class="text-sm text-gray-500">{{ 'client.myDocsTitle' | translate }}</p>
+        <p class="mt-1 text-3xl font-extrabold text-accent-600">{{ documents.length }}</p>
+      </a>
+      <a routerLink="/client/profile" class="card flex items-center justify-between transition hover:shadow-md">
+        <p class="text-sm font-semibold text-gray-700">{{ 'client.profileTitle' | translate }}</p>
+        <span class="text-brand-600">→</span>
+      </a>
+    </div>
+
+    <div class="grid gap-8 lg:grid-cols-2">
+      <!-- Recent forms -->
+      <div class="card">
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-base font-semibold text-gray-900">{{ 'client.myFormsTitle' | translate }}</h2>
+          <a routerLink="/client/forms" class="btn-primary !px-3 !py-1.5 text-xs">+ {{ 'nav.newForm' | translate }}</a>
+        </div>
+        <p *ngIf="!forms.length" class="text-sm text-gray-500">{{ 'client.myFormsEmpty' | translate }}</p>
+        <ul class="divide-y divide-gray-100">
+          <li *ngFor="let f of forms" class="flex items-center justify-between py-3">
+            <div>
+              <p class="font-semibold text-gray-900">{{ 'common.year' | translate }} {{ f.tax_year }}</p>
+              <p class="text-xs text-gray-500">{{ 'process.' + f.process_status | translate }}</p>
+            </div>
+            <span class="badge" [ngClass]="f.status === FormStatus.Submitted ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+              {{ (f.status === FormStatus.Submitted ? 'common.submitted' : 'common.draft') | translate }}
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Documents -->
+      <div class="card">
+        <h2 class="mb-4 text-base font-semibold text-gray-900">{{ 'client.myDocsTitle' | translate }}</h2>
+        <p *ngIf="!documents.length" class="text-sm text-gray-500">{{ 'client.myDocsEmpty' | translate }}</p>
+        <ul class="divide-y divide-gray-100">
+          <li *ngFor="let d of documents" class="flex items-center justify-between py-3">
+            <div>
+              <p class="font-semibold text-gray-900">{{ d.file_name }}</p>
+              <p class="text-xs text-gray-500">{{ 'common.year' | translate }} {{ d.tax_year }}</p>
+            </div>
+            <button type="button" (click)="openDoc(d)" class="btn-secondary !px-3 !py-1.5 text-xs">{{ 'common.download' | translate }}</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </ng-container>
+</section>

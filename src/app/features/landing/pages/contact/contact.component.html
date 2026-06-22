@@ -1,0 +1,39 @@
+<section class="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:px-8">
+  <div class="mb-8 text-center">
+    <h1 class="text-3xl font-extrabold text-gray-900">{{ 'contact.title' | translate }}</h1>
+    <p class="mt-2 text-gray-600">{{ 'contact.subtitle' | translate }}</p>
+  </div>
+
+  <div *ngIf="success" class="mb-6 rounded-lg border border-accent-500 bg-green-50 p-4 text-sm text-green-800">
+    ✅ {{ 'contact.success' | translate }}
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="card space-y-4">
+    <div>
+      <label class="label">{{ 'contact.name' | translate }} *</label>
+      <input class="input" type="text" formControlName="name" />
+      <p *ngIf="invalid('name')" class="field-error">{{ 'common.required' | translate }}</p>
+    </div>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label class="label">{{ 'contact.email' | translate }} *</label>
+        <input class="input" type="email" formControlName="email" />
+        <p *ngIf="invalid('email')" class="field-error">{{ 'common.required' | translate }}</p>
+      </div>
+      <div>
+        <label class="label">{{ 'contact.phone' | translate }}</label>
+        <input class="input" type="tel" formControlName="phone" />
+      </div>
+    </div>
+    <div>
+      <label class="label">{{ 'contact.message' | translate }} *</label>
+      <textarea class="input" rows="5" formControlName="message"></textarea>
+      <p *ngIf="invalid('message')" class="field-error">{{ 'common.required' | translate }}</p>
+    </div>
+    <div class="flex justify-end">
+      <button type="submit" class="btn-primary" [disabled]="saving">
+        {{ saving ? ('common.saving' | translate) : ('contact.send' | translate) }}
+      </button>
+    </div>
+  </form>
+</section>

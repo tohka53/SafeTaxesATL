@@ -1,0 +1,57 @@
+<section class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+  <header class="mb-6">
+    <h1 class="text-2xl font-extrabold text-gray-900">{{ 'client.myFormsTitle' | translate }}</h1>
+  </header>
+
+  <!-- Catalog: create a new form of any type -->
+  <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">{{ 'nav.newForm' | translate }}</h2>
+  <div class="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <button *ngFor="let d of defs" type="button" (click)="create(d)" class="card flex items-center gap-3 text-left transition hover:shadow-md hover:ring-1 hover:ring-brand-200">
+      <span class="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-brand-100 text-2xl">{{ d.icon }}</span>
+      <span class="text-sm font-semibold text-gray-800">{{ defLabel(d) }}</span>
+    </button>
+  </div>
+
+  <!-- Saved forms -->
+  <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">{{ 'client.myFormsTitle' | translate }}</h2>
+  <div *ngIf="loading" class="text-gray-500">{{ 'common.loading' | translate }}</div>
+  <div *ngIf="!loading && !years.length" class="card text-center text-gray-500">{{ 'client.myFormsEmpty' | translate }}</div>
+
+  <div *ngFor="let y of years" class="mb-6">
+    <h3 class="mb-3 flex items-center gap-2 text-lg font-bold text-gray-800">
+      <span>📁</span> {{ y }}
+      <span class="text-sm font-normal text-gray-400">({{ grouped[y].length }} {{ 'preparer.forms' | translate }})</span>
+    </h3>
+    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
+          <tr>
+            <th class="px-4 py-3">{{ 'nav2.forms' | translate }}</th>
+            <th class="px-4 py-3">{{ 'form.fullName' | translate }}</th>
+            <th class="px-4 py-3">{{ 'common.status' | translate }}</th>
+            <th class="px-4 py-3 text-right">{{ 'common.actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr *ngFor="let f of grouped[y]" class="hover:bg-gray-50">
+            <td class="px-4 py-3 font-medium text-gray-900">{{ defTitle(f.form_type) }}</td>
+            <td class="px-4 py-3 text-gray-600">{{ f.full_name || '—' }}</td>
+            <td class="px-4 py-3">
+              <span class="badge" [ngClass]="f.status === FormStatus.Submitted ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+                {{ (f.status === FormStatus.Submitted ? 'common.submitted' : 'common.draft') | translate }}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex justify-end gap-2">
+                <button type="button" (click)="download(f)" class="btn-secondary !px-3 !py-1.5 text-xs">PDF</button>
+                <button type="button" (click)="open(f)" class="btn-primary !px-3 !py-1.5 text-xs">
+                  {{ (f.status === FormStatus.Submitted ? 'common.view' : 'common.edit') | translate }}
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

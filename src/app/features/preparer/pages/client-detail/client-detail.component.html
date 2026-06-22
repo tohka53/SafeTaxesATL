@@ -1,0 +1,113 @@
+<section class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+  <header class="mb-6 flex items-center justify-between">
+    <h1 class="text-2xl font-extrabold text-gray-900">{{ 'preparer.clientDetail' | translate }}</h1>
+    <a routerLink="/preparer" class="text-sm font-semibold text-brand-600 hover:underline">← {{ 'preparer.clientsTitle' | translate }}</a>
+  </header>
+
+  <div *ngIf="loading" class="text-gray-500">{{ 'common.loading' | translate }}</div>
+
+  <ng-container *ngIf="!loading && profile">
+    <!-- Personal data -->
+    <div class="card mb-6">
+      <h2 class="mb-4 text-base font-semibold text-gray-900">{{ 'preparer.personalData' | translate }}</h2>
+      <dl class="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3 text-sm">
+        <div><dt class="text-gray-500">{{ 'form.fullName' | translate }}</dt><dd class="font-medium text-gray-900">{{ profile.full_name || '—' }}</dd></div>
+        <div><dt class="text-gray-500">{{ 'auth.email' | translate }}</dt><dd class="font-medium text-gray-900">{{ profile.email }}</dd></div>
+        <div><dt class="text-gray-500">{{ 'form.phone' | translate }}</dt><dd class="font-medium text-gray-900">{{ profile.phone || '—' }}</dd></div>
+        <div class="sm:col-span-2"><dt class="text-gray-500">{{ 'form.addressLine1' | translate }}</dt><dd class="font-medium text-gray-900">{{ profile.address_line1 || '—' }}, {{ profile.city }} {{ profile.state }} {{ profile.zip }}</dd></div>
+        <div><dt class="text-gray-500">{{ 'form.ssn' | translate }}</dt><dd class="font-medium text-gray-900">{{ profile.ssn || '—' }}</dd></div>
+        <div><dt class="text-gray-500">{{ 'form.bankName' | translate }}</dt><dd class="font-medium text-gray-900">{{ profile.bank_name || '—' }}</dd></div>
+        <div><dt class="text-gray-500">{{ 'form.accountNumber' | translate }}</dt><dd class="font-medium text-gray-900">{{ profile.bank_account_number || '—' }}</dd></div>
+        <div><dt class="text-gray-500">{{ 'form.routingNumber' | translate }}</dt><dd class="font-medium text-gray-900">{{ profile.bank_routing_number || '—' }}</dd></div>
+        <div><dt class="text-gray-500">{{ 'form.employer' | translate }}</dt><dd class="font-medium text-gray-900">{{ profile.employer || '—' }}</dd></div>
+        <div><dt class="text-gray-500">{{ 'form.incomeRange' | translate }}</dt><dd class="font-medium text-gray-900">{{ profile.income_range ? ('income.' + profile.income_range | translate) : '—' }}</dd></div>
+      </dl>
+    </div>
+
+    <!-- Upload completed document -->
+    <div class="card mb-6 border-brand-200">
+      <h2 class="text-base font-semibold text-gray-900">{{ 'preparer.uploadTitle' | translate }}</h2>
+      <p class="mb-4 text-sm text-gray-500">{{ 'preparer.uploadSubtitle' | translate }}</p>
+      <div *ngIf="uploadOk" class="mb-4 rounded-lg border border-accent-500 bg-green-50 p-3 text-sm text-green-800">
+        ✅ {{ 'preparer.uploadOk' | translate }}
+      </div>
+      <div class="flex flex-wrap items-end gap-3">
+        <div>
+          <label class="label">{{ 'preparer.uploadFor' | translate }}</label>
+          <select class="input" [(ngModel)]="uploadYear">
+            <option *ngFor="let y of uploadYears" [ngValue]="y">{{ y }}</option>
+          </select>
+        </div>
+        <div class="flex-1">
+          <label class="label">{{ 'preparer.selectFile' | translate }}</label>
+          <input class="input" type="file" (change)="onFile($event)" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" />
+        </div>
+        <button type="button" class="btn-success" [disabled]="!uploadFile || uploading" (click)="upload()">
+          {{ uploading ? ('common.saving' | translate) : ('common.upload' | translate) }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Forms by year (folders) -->
+    <h2 class="mb-3 text-base font-semibold text-gray-900">{{ 'preparer.formsByYear' | translate }}</h2>
+    <div *ngIf="!years.length" class="card text-center text-gray-500">{{ 'preparer.noForms' | translate }}</div>
+
+    <div class="space-y-3">
+      <div *ngFor="let y of years" class="overflow-hidden rounded-xl border border-gray-200 bg-white">
+        <!-- Folder header -->
+        <button type="button" (click)="toggleYear(y)" class="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-gray-50">
+          <span class="flex items-center gap-2 font-bold text-gray-800">
+            <span class="text-xl">{{ openYear === y ? '📂' : '📁' }}</span> {{ y }}
+            <span class="text-sm font-normal text-gray-400">({{ grouped[y].length }} {{ 'preparer.forms' | translate }})</span>
+          </span>
+          <span class="text-gray-400">{{ openYear === y ? '▾' : '▸' }}</span>
+        </button>
+
+        <!-- Folder content -->
+        <div *ngIf="openYear === y" class="border-t border-gray-100 px-4 py-4">
+          <table class="w-full text-sm">
+            <thead class="text-left text-xs uppercase text-gray-500">
+              <tr>
+                <th class="py-2">{{ 'nav2.forms' | translate }}</th>
+                <th class="py-2">{{ 'form.fullName' | translate }}</th>
+                <th class="py-2">{{ 'common.status' | translate }}</th>
+                <th class="py-2">{{ 'preparer.updateStatus' | translate }}</th>
+                <th class="py-2 text-right">{{ 'common.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr *ngFor="let f of grouped[y]">
+                <td class="py-2 font-medium text-gray-900">{{ formTypeLabel(f.form_type) }}</td>
+                <td class="py-2 text-gray-700">{{ f.full_name || '—' }}</td>
+                <td class="py-2">
+                  <span class="badge" [ngClass]="f.status === FormStatus.Submitted ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+                    {{ (f.status === FormStatus.Submitted ? 'common.submitted' : 'common.draft') | translate }}
+                  </span>
+                </td>
+                <td class="py-2">
+                  <select class="input !py-1.5 text-xs" [value]="f.process_status" (change)="onStatusChange(f, $event)">
+                    <option *ngFor="let s of steps" [value]="s">{{ 'process.' + s | translate }}</option>
+                  </select>
+                </td>
+                <td class="py-2 text-right">
+                  <button type="button" (click)="downloadForm(f)" class="btn-secondary !px-3 !py-1.5 text-xs">PDF</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Documents for this year -->
+          <div *ngIf="docsForYear(y).length" class="mt-4 border-t border-gray-100 pt-3">
+            <h4 class="mb-2 text-xs font-semibold uppercase text-gray-500">{{ 'preparer.documents' | translate }}</h4>
+            <ul class="divide-y divide-gray-100">
+              <li *ngFor="let d of docsForYear(y)" class="flex items-center justify-between py-2">
+                <span class="text-sm text-gray-800">📄 {{ d.file_name }}</span>
+                <button type="button" (click)="openDoc(d)" class="btn-secondary !px-3 !py-1.5 text-xs">{{ 'common.download' | translate }}</button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</section>

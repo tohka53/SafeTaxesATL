@@ -1,0 +1,66 @@
+<section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+  <header class="mb-6 flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-extrabold text-gray-900">{{ 'ext.title' | translate }}</h1>
+      <p class="mt-1 text-gray-600">{{ 'ext.subtitle' | translate }}</p>
+    </div>
+    <a routerLink="/preparer" class="text-sm font-semibold text-brand-600 hover:underline">← {{ 'preparer.clientsTitle' | translate }}</a>
+  </header>
+
+  <!-- Filters -->
+  <div class="mb-5 flex flex-col gap-3 sm:flex-row">
+    <input class="input sm:flex-1" type="text" [(ngModel)]="q" [placeholder]="'ext.searchAny' | translate" />
+    <select class="input sm:w-64" [(ngModel)]="typeFilter">
+      <option value="">{{ 'ext.allTypes' | translate }}</option>
+      <option *ngFor="let d of defs" [value]="d.id">{{ defLabel(d) }}</option>
+    </select>
+  </div>
+
+  <div *ngIf="loading" class="text-gray-500">{{ 'common.loading' | translate }}</div>
+  <div *ngIf="!loading && !filtered.length" class="card text-center text-gray-500">{{ 'ext.noData' | translate }}</div>
+
+  <div *ngIf="!loading && filtered.length" class="overflow-hidden rounded-xl border border-gray-200 bg-white">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
+        <tr>
+          <th class="px-4 py-3">{{ 'ext.received' | translate }}</th>
+          <th class="px-4 py-3">{{ 'nav2.forms' | translate }}</th>
+          <th class="px-4 py-3">{{ 'form.fullName' | translate }}</th>
+          <th class="px-4 py-3">{{ 'auth.email' | translate }}</th>
+          <th class="px-4 py-3">{{ 'form.phone' | translate }}</th>
+          <th class="px-4 py-3 text-right">{{ 'common.actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <ng-container *ngFor="let l of filtered">
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 text-gray-500">{{ l.created_at | date: 'short' }}</td>
+            <td class="px-4 py-3"><span class="badge bg-brand-100 text-brand-700">{{ typeLabel(l.form_type) }}</span></td>
+            <td class="px-4 py-3 font-medium text-gray-900">{{ l.full_name || '—' }}</td>
+            <td class="px-4 py-3 text-gray-600">{{ l.email || '—' }}</td>
+            <td class="px-4 py-3 text-gray-600">{{ l.phone || '—' }}</td>
+            <td class="px-4 py-3">
+              <div class="flex justify-end gap-2">
+                <button type="button" (click)="toggle(l)" class="btn-secondary !px-3 !py-1.5 text-xs">{{ 'ext.viewData' | translate }}</button>
+                <button type="button" (click)="download(l)" class="btn-primary !px-3 !py-1.5 text-xs">PDF</button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="expandedId === l.id" class="bg-gray-50">
+            <td colspan="6" class="px-4 py-4">
+              <dl class="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3 text-sm">
+                <div><dt class="text-gray-500">{{ 'common.year' | translate }}</dt><dd class="font-medium text-gray-900">{{ l.tax_year || '—' }}</dd></div>
+                <div><dt class="text-gray-500">{{ 'form.city' | translate }}/{{ 'form.state' | translate }}</dt><dd class="font-medium text-gray-900">{{ l.city || '—' }} {{ l.state || '' }}</dd></div>
+                <div><dt class="text-gray-500">{{ 'form.ssn' | translate }}</dt><dd class="font-medium text-gray-900">{{ l.ssn || '—' }}</dd></div>
+                <div><dt class="text-gray-500">{{ 'form.bankName' | translate }}</dt><dd class="font-medium text-gray-900">{{ l.bank_name || '—' }}</dd></div>
+                <div><dt class="text-gray-500">{{ 'form.accountNumber' | translate }}</dt><dd class="font-medium text-gray-900">{{ l.bank_account_number || '—' }}</dd></div>
+                <div><dt class="text-gray-500">{{ 'form.employer' | translate }}</dt><dd class="font-medium text-gray-900">{{ l.employer || '—' }}</dd></div>
+              </dl>
+              <p class="mt-3 text-xs text-gray-400">{{ 'common.downloadPdf' | translate }} → {{ typeLabel(l.form_type) }}</p>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</section>

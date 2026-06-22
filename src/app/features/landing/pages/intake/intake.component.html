@@ -1,0 +1,13 @@
+<section class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+  <header class="mb-8 text-center">
+    <h1 class="text-3xl font-extrabold text-gray-900">{{ 'form.publicTitle' | translate }}</h1>
+    <p class="mt-2 text-gray-600">{{ 'form.publicSubtitle' | translate }}</p>
+  </header>
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <button *ngFor="let d of defs" type="button" (click)="open(d)" class="card flex items-center gap-3 text-left transition hover:shadow-md hover:ring-1 hover:ring-brand-200">
+      <span class="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-brand-100 text-2xl">{{ d.icon }}</span>
+      <span class="text-sm font-semibold text-gray-800">{{ label(d) }}</span>
+    </button>
+  </div>
+</section>

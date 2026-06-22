@@ -1,0 +1,292 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+  <div *ngIf="showAutofill && !locked" class="rounded-lg border border-brand-200 bg-brand-50 p-3 text-sm text-brand-800">
+    {{ 'form.autofillNote' | translate }}
+  </div>
+  <div *ngIf="locked" class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+    {{ 'form.lockedNote' | translate }}
+  </div>
+
+  <!-- Intro -->
+  <div class="card">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div>
+        <label class="label">{{ 'form.taxYear' | translate }} *</label>
+        <select class="input" formControlName="tax_year">
+          <option *ngFor="let y of years" [ngValue]="y">{{ y }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="label">{{ 'pf.returningQ' | translate }}</label>
+        <select class="input" formControlName="customer_last_year">
+          <option value="">—</option>
+          <option value="yes">{{ 'common.yes' | translate }}</option>
+          <option value="no">{{ 'common.no' | translate }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="label">{{ 'pf.referralQ' | translate }}</label>
+        <select class="input" formControlName="referral">
+          <option value="">—</option>
+          <option value="google">{{ 'pf.refGoogle' | translate }}</option>
+          <option value="friend">{{ 'pf.refFriend' | translate }}</option>
+          <option value="ad">{{ 'pf.refAd' | translate }}</option>
+          <option value="other">{{ 'pf.refOther' | translate }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. Filing status -->
+  <div class="card">
+    <h3 class="mb-4 text-base font-semibold text-gray-900">{{ 'pf.sec1' | translate }}</h3>
+    <select class="input sm:max-w-sm" formControlName="filing">
+      <option value="">{{ 'form.selectFiling' | translate }}</option>
+      <option *ngFor="let f of filingOptions" [value]="f">{{ 'filing.' + f | translate }}</option>
+    </select>
+  </div>
+
+  <!-- 2. Taxpayer -->
+  <div class="card">
+    <h3 class="mb-4 text-base font-semibold text-gray-900">{{ 'pf.sec2' | translate }}</h3>
+    <ng-container *ngTemplateOutlet="personTpl; context: { $implicit: taxpayer, req: true }"></ng-container>
+  </div>
+
+  <!-- 3. Spouse -->
+  <div class="card">
+    <h3 class="mb-4 text-base font-semibold text-gray-900">{{ 'pf.sec3' | translate }}</h3>
+    <ng-container *ngTemplateOutlet="personTpl; context: { $implicit: spouse, req: false }"></ng-container>
+  </div>
+
+  <!-- 4. Dependents -->
+  <div class="card">
+    <h3 class="text-base font-semibold text-gray-900">{{ 'pf.sec4' | translate }}</h3>
+    <p class="mb-4 text-xs text-gray-500">{{ 'pf.sec4docs' | translate }}</p>
+
+    <div class="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label class="label">{{ 'pf.depSupportQ' | translate }}</label>
+        <select class="input" formControlName="dep_support">
+          <option value="">—</option><option value="yes">{{ 'common.yes' | translate }}</option><option value="no">{{ 'common.no' | translate }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="label">{{ 'pf.daycareQ' | translate }}</label>
+        <select class="input" formControlName="daycare">
+          <option value="">—</option><option value="yes">{{ 'common.yes' | translate }}</option><option value="no">{{ 'common.no' | translate }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div formArrayName="dependents" class="space-y-3">
+      <div *ngFor="let d of dependents.controls; let i = index" [formGroupName]="i" class="rounded-lg border border-gray-200 p-3">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-12">
+          <div class="sm:col-span-4"><label class="label">{{ 'pf.depName' | translate }}</label><input class="input" type="text" formControlName="name" /></div>
+          <div class="sm:col-span-3"><label class="label">{{ 'pf.depDob' | translate }}</label><input class="input" type="date" formControlName="dob" /></div>
+          <div class="sm:col-span-3"><label class="label">{{ 'pf.depSsn' | translate }}</label><input class="input" type="text" formControlName="ssn" autocomplete="off" /></div>
+          <div class="sm:col-span-2"><label class="label">{{ 'pf.depMonths' | translate }}</label><input class="input" type="number" min="0" max="12" formControlName="months" /></div>
+          <div class="sm:col-span-10"><label class="label">{{ 'pf.depRel' | translate }}</label><input class="input" type="text" formControlName="rel" /></div>
+          <div class="flex items-end sm:col-span-2">
+            <button type="button" (click)="removeDependent(i)" class="btn-secondary w-full !py-2 text-xs">{{ 'pf.remove' | translate }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button type="button" (click)="addDependent()" class="btn-secondary mt-3 text-xs">+ {{ 'pf.addDependent' | translate }}</button>
+  </div>
+
+  <!-- 4 continued -->
+  <div class="card">
+    <h3 class="mb-4 text-base font-semibold text-gray-900">{{ 'pf.sec4cont' | translate }}</h3>
+    <div class="space-y-3">
+      <div *ngFor="let q of ['dep_q1','dep_q2','dep_q3','dep_q4','dep_q5']" class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <span class="text-sm text-gray-700">{{ 'pf.' + (q === 'dep_q1' ? 'depQ1' : q === 'dep_q2' ? 'depQ2' : q === 'dep_q3' ? 'depQ3' : q === 'dep_q4' ? 'depQ4' : 'depQ5') | translate }}</span>
+        <select class="input sm:w-32" [formControlName]="q">
+          <option value="">—</option><option value="yes">{{ 'common.yes' | translate }}</option><option value="no">{{ 'common.no' | translate }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Homeowner -->
+  <div class="card">
+    <h3 class="mb-4 text-base font-semibold text-gray-900">{{ 'pf.sec5' | translate }}</h3>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div>
+        <label class="label">{{ 'common.status' | translate }}</label>
+        <select class="input" formControlName="homeowner">
+          <option value="">—</option><option value="yes">{{ 'common.yes' | translate }}</option><option value="no">{{ 'common.no' | translate }}</option>
+        </select>
+      </div>
+      <div><label class="label">{{ 'pf.units' | translate }}</label><input class="input" type="number" min="0" formControlName="home_units" /></div>
+    </div>
+  </div>
+
+  <!-- 6. Self-employed -->
+  <div class="card">
+    <h3 class="mb-4 text-base font-semibold text-gray-900">{{ 'pf.sec6' | translate }}</h3>
+    <div class="mb-4 sm:max-w-xs">
+      <label class="label">{{ 'common.status' | translate }}</label>
+      <select class="input" formControlName="self_emp">
+        <option value="">—</option><option value="yes">{{ 'common.yes' | translate }}</option><option value="no">{{ 'common.no' | translate }}</option>
+      </select>
+    </div>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div><label class="label">{{ 'pf.businessName' | translate }}</label><input class="input" type="text" formControlName="se_bizname" /></div>
+      <div><label class="label">{{ 'pf.ein' | translate }}</label><input class="input" type="text" formControlName="se_ein" /></div>
+      <div class="sm:col-span-2"><label class="label">{{ 'form.addressLine1' | translate }}</label><input class="input" type="text" formControlName="se_addr" /></div>
+      <div><label class="label">{{ 'form.state' | translate }}</label>
+        <select class="input" formControlName="se_state">
+          <option value="">—</option>
+          <option *ngFor="let s of states" [value]="s.code">{{ s.name }}</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="label">{{ 'form.city' | translate }}</label>
+          <select class="input" formControlName="se_city">
+            <option value="">—</option>
+            <option *ngFor="let c of cityOptions(form.get('se_state')?.value, form.get('se_city')?.value)" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+        <div><label class="label">{{ 'form.zip' | translate }}</label><input class="input" type="text" formControlName="se_zip" /></div>
+      </div>
+      <div><label class="label">{{ 'pf.phone' | translate }}</label><input class="input" type="tel" formControlName="se_phone" /></div>
+      <div><label class="label">{{ 'pf.workPhone' | translate }}</label><input class="input" type="tel" formControlName="se_work" /></div>
+      <div class="sm:col-span-2"><label class="label">{{ 'form.email' | translate }}</label><input class="input" type="email" formControlName="se_email" /></div>
+    </div>
+  </div>
+
+  <!-- Income items -->
+  <div class="card">
+    <h3 class="mb-4 text-base font-semibold text-gray-900">{{ 'pf.secIncome' | translate }}</h3>
+    <div class="space-y-3">
+      <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <span class="text-sm text-gray-700">{{ 'pf.bankInterest' | translate }}</span>
+        <div class="flex items-center gap-2">
+          <input class="input w-32" type="number" step="0.01" formControlName="bank_int_amt" [placeholder]="'pf.amount' | translate" />
+          <select class="input w-28" formControlName="bank_int"><option value="">—</option><option value="yes">{{ 'common.yes' | translate }}</option><option value="no">{{ 'common.no' | translate }}</option></select>
+        </div>
+      </div>
+      <div *ngFor="let it of [{k:'unemp',l:'unemployment'},{k:'ira',l:'iraPension'},{k:'vc',l:'virtualCurrency'},{k:'stocks',l:'soldStocks'}]" class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <span class="text-sm text-gray-700">{{ 'pf.' + it.l | translate }}</span>
+        <select class="input sm:w-32" [formControlName]="it.k"><option value="">—</option><option value="yes">{{ 'common.yes' | translate }}</option><option value="no">{{ 'common.no' | translate }}</option></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. Health insurance -->
+  <div class="card">
+    <h3 class="mb-4 text-base font-semibold text-gray-900">{{ 'pf.sec12' | translate }}</h3>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+      <div>
+        <label class="label">{{ 'pf.insuranceName' | translate }}</label>
+        <select class="input" formControlName="ins_type">
+          <option value="">—</option>
+          <option value="private">{{ 'pf.insPrivate' | translate }}</option>
+          <option value="medicaid">{{ 'pf.insMedicaid' | translate }}</option>
+          <option value="marketplace">{{ 'pf.insMarketplace' | translate }}</option>
+        </select>
+      </div>
+      <div><label class="label">{{ 'pf.insuranceName' | translate }}</label><input class="input" type="text" formControlName="ins_name" /></div>
+      <div><label class="label">{{ 'pf.fid' | translate }}</label><input class="input" type="text" formControlName="ins_fid" /></div>
+      <div><label class="label">{{ 'pf.memberNo' | translate }}</label><input class="input" type="text" formControlName="ins_member" /></div>
+    </div>
+    <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div *ngFor="let it of [{k:'h1095',l:'q1095'},{k:'h_year',l:'coveredYear'},{k:'h_market',l:'throughMarketplace'},{k:'h_hsa',l:'hsa'},{k:'h_card',l:'haveCard'},{k:'h_emp',l:'throughEmployer'}]" class="flex items-center justify-between">
+        <span class="text-sm text-gray-700">{{ 'pf.' + it.l | translate }}</span>
+        <select class="input w-28" [formControlName]="it.k"><option value="">—</option><option value="yes">{{ 'common.yes' | translate }}</option><option value="no">{{ 'common.no' | translate }}</option></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. Bank -->
+  <div class="card border-amber-200">
+    <h3 class="mb-1 text-base font-semibold text-gray-900">{{ 'pf.sec13' | translate }}</h3>
+    <p class="mb-4 text-xs text-gray-500">🔒 {{ 'security.notice' | translate }}</p>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div><label class="label">{{ 'form.bankName' | translate }}</label>
+        <select class="input" formControlName="bank_name">
+          <option value="">—</option>
+          <option *ngFor="let b of bankOptions(form.get('bank_name')?.value)" [value]="b">{{ b }}</option>
+        </select>
+      </div>
+      <div><label class="label">{{ 'form.routingNumber' | translate }}</label><input class="input" type="text" formControlName="bank_rout" autocomplete="off" /></div>
+      <div><label class="label">{{ 'form.accountNumber' | translate }}</label><input class="input" type="text" formControlName="bank_acct" autocomplete="off" /></div>
+    </div>
+  </div>
+
+  <!-- Signatures -->
+  <div class="card">
+    <h3 class="mb-4 text-base font-semibold text-gray-900">{{ 'pf.secSign' | translate }}</h3>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div><label class="label">{{ 'pf.customerSignature' | translate }}</label><input class="input" type="text" formControlName="sig_tp" /></div>
+      <div><label class="label">{{ 'pf.date' | translate }}</label><input class="input" type="date" formControlName="sig_tp_date" /></div>
+      <div><label class="label">{{ 'pf.spouseSignature' | translate }}</label><input class="input" type="text" formControlName="sig_sp" /></div>
+      <div><label class="label">{{ 'pf.date' | translate }}</label><input class="input" type="date" formControlName="sig_sp_date" /></div>
+    </div>
+    <p class="mt-4 text-xs italic text-gray-500">{{ 'pf.legal' | translate }}</p>
+  </div>
+
+  <!-- Actions -->
+  <div *ngIf="!locked" class="flex flex-wrap items-center justify-end gap-3">
+    <button type="button" (click)="onDownload()" class="btn-secondary">{{ 'common.downloadPdf' | translate }}</button>
+    <button *ngIf="mode === 'internal'" type="button" (click)="onSaveDraft()" class="btn-secondary">{{ 'common.saveDraft' | translate }}</button>
+    <button type="submit" class="btn-primary">{{ mode === 'public' ? ('contact.send' | translate) : ('common.submit' | translate) }}</button>
+  </div>
+</form>
+
+<!-- Reusable person block (taxpayer / spouse) -->
+<ng-template #personTpl let-grp let-req="req">
+  <div [formGroup]="grp" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div>
+      <label class="label">{{ 'pf.firstName' | translate }}<span *ngIf="req"> *</span></label>
+      <input class="input" type="text" formControlName="first" />
+    </div>
+    <div>
+      <label class="label">{{ 'pf.lastName' | translate }}<span *ngIf="req"> *</span></label>
+      <input class="input" type="text" formControlName="last" />
+    </div>
+    <div><label class="label">{{ 'form.ssn' | translate }}</label><input class="input" type="text" formControlName="ssn" placeholder="XXX-XX-XXXX" autocomplete="off" /></div>
+    <div><label class="label">{{ 'pf.dob' | translate }}</label><input class="input" type="date" formControlName="dob" /></div>
+    <div class="sm:col-span-2"><label class="label">{{ 'form.addressLine1' | translate }}</label><input class="input" type="text" formControlName="addr" /></div>
+    <div><label class="label">{{ 'form.state' | translate }}</label>
+      <select class="input" formControlName="state">
+        <option value="">—</option>
+        <option *ngFor="let s of states" [value]="s.code">{{ s.name }}</option>
+      </select>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div><label class="label">{{ 'form.city' | translate }}</label>
+        <select class="input" formControlName="city">
+          <option value="">—</option>
+          <option *ngFor="let c of cityOptions(grp.get('state')?.value, grp.get('city')?.value)" [value]="c">{{ c }}</option>
+        </select>
+      </div>
+      <div><label class="label">{{ 'form.zip' | translate }}</label><input class="input" type="text" maxlength="10" formControlName="zip" /></div>
+    </div>
+    <div><label class="label">{{ 'pf.cell' | translate }}</label><input class="input" type="tel" formControlName="cell" /></div>
+    <div class="grid grid-cols-2 gap-4">
+      <div><label class="label">{{ 'pf.workPhone' | translate }}</label><input class="input" type="tel" formControlName="work" /></div>
+      <div><label class="label">{{ 'pf.homePhone' | translate }}</label><input class="input" type="tel" formControlName="home" /></div>
+    </div>
+    <div><label class="label">{{ 'form.email' | translate }}</label><input class="input" type="email" formControlName="email" /></div>
+    <div class="grid grid-cols-2 gap-4">
+      <div><label class="label">{{ 'pf.occupation' | translate }}</label><input class="input" type="text" formControlName="occ" /></div>
+      <div><label class="label">{{ 'pf.pin' | translate }}</label><input class="input" type="text" maxlength="6" formControlName="pin" /></div>
+    </div>
+    <div>
+      <label class="label">{{ 'pf.idType' | translate }}</label>
+      <select class="input" formControlName="id_type">
+        <option value="">—</option>
+        <option value="state">{{ 'pf.idStateId' | translate }}</option>
+        <option value="dl">{{ 'pf.idDL' | translate }}</option>
+        <option value="pp">{{ 'pf.idPassport' | translate }}</option>
+      </select>
+    </div>
+    <div><label class="label">{{ 'pf.idNumber' | translate }}</label><input class="input" type="text" formControlName="id_num" /></div>
+    <div class="grid grid-cols-3 gap-4 sm:col-span-2">
+      <div><label class="label">{{ 'form.state' | translate }}</label><input class="input" type="text" maxlength="2" formControlName="id_state" /></div>
+      <div><label class="label">{{ 'pf.issueDate' | translate }}</label><input class="input" type="date" formControlName="id_issue" /></div>
+      <div><label class="label">{{ 'pf.expDate' | translate }}</label><input class="input" type="date" formControlName="id_exp" /></div>
+    </div>
+  </div>
+</ng-template>

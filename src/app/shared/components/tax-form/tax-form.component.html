@@ -1,0 +1,135 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+  <!-- Autofill / locked notices -->
+  <div *ngIf="showAutofillNote && !locked" class="rounded-lg border border-brand-200 bg-brand-50 p-3 text-sm text-brand-800">
+    {{ 'form.autofillNote' | translate }}
+  </div>
+  <div *ngIf="locked" class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+    {{ 'form.lockedNote' | translate }}
+  </div>
+
+  <!-- Tax year + personal info -->
+  <div class="card">
+    <h3 class="mb-4 text-base font-semibold text-gray-900">{{ 'form.personalInfo' | translate }}</h3>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label class="label">{{ 'form.taxYear' | translate }} *</label>
+        <select class="input" formControlName="tax_year">
+          <option *ngFor="let y of years" [ngValue]="y">{{ y }}</option>
+        </select>
+      </div>
+      <div class="hidden sm:block"></div>
+      <div>
+        <label class="label">{{ 'form.fullName' | translate }} *</label>
+        <input class="input" type="text" formControlName="full_name" />
+        <p *ngIf="invalid('full_name')" class="field-error">{{ 'common.required' | translate }}</p>
+      </div>
+      <div>
+        <label class="label">{{ 'form.email' | translate }} *</label>
+        <input class="input" type="email" formControlName="email" />
+        <p *ngIf="invalid('email')" class="field-error">{{ 'auth.email' | translate }} ✗</p>
+      </div>
+      <div>
+        <label class="label">{{ 'form.phone' | translate }}</label>
+        <input class="input" type="tel" formControlName="phone" placeholder="(404) 555-0123" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Address -->
+  <div class="card">
+    <h3 class="mb-4 text-base font-semibold text-gray-900">{{ 'form.addressSection' | translate }}</h3>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div class="sm:col-span-2">
+        <label class="label">{{ 'form.addressLine1' | translate }}</label>
+        <input class="input" type="text" formControlName="address_line1" />
+      </div>
+      <div>
+        <label class="label">{{ 'form.city' | translate }}</label>
+        <input class="input" type="text" formControlName="city" />
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="label">{{ 'form.state' | translate }}</label>
+          <input class="input" type="text" formControlName="state" maxlength="2" placeholder="GA" />
+        </div>
+        <div>
+          <label class="label">{{ 'form.zip' | translate }}</label>
+          <input class="input" type="text" formControlName="zip" maxlength="10" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sensitive: SSN + bank -->
+  <div class="card border-amber-200">
+    <h3 class="mb-1 text-base font-semibold text-gray-900">{{ 'form.sensitiveSection' | translate }}</h3>
+    <p class="mb-4 text-xs text-gray-500">🔒 {{ 'security.notice' | translate }}</p>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label class="label">{{ 'form.ssn' | translate }}</label>
+        <input class="input" type="text" formControlName="ssn" placeholder="XXX-XX-XXXX" autocomplete="off" />
+      </div>
+      <div></div>
+      <div>
+        <label class="label">{{ 'form.bankName' | translate }}</label>
+        <input class="input" type="text" formControlName="bank_name" />
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="label">{{ 'form.accountNumber' | translate }}</label>
+          <input class="input" type="text" formControlName="bank_account_number" autocomplete="off" />
+        </div>
+        <div>
+          <label class="label">{{ 'form.routingNumber' | translate }}</label>
+          <input class="input" type="text" formControlName="bank_routing_number" autocomplete="off" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Work & income -->
+  <div class="card">
+    <h3 class="mb-4 text-base font-semibold text-gray-900">{{ 'form.workSection' | translate }}</h3>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <label class="label">{{ 'form.employer' | translate }}</label>
+        <input class="input" type="text" formControlName="employer" />
+      </div>
+      <div>
+        <label class="label">{{ 'form.incomeRange' | translate }}</label>
+        <select class="input" formControlName="income_range">
+          <option value="">{{ 'form.selectIncome' | translate }}</option>
+          <option *ngFor="let r of incomeRanges" [value]="r">{{ 'income.' + r | translate }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="label">{{ 'form.filingStatus' | translate }}</label>
+        <select class="input" formControlName="filing_status">
+          <option value="">{{ 'form.selectFiling' | translate }}</option>
+          <option *ngFor="let f of filingStatuses" [value]="f">{{ 'filing.' + f | translate }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="label">{{ 'form.dependents' | translate }}</label>
+        <input class="input" type="number" min="0" formControlName="dependents" />
+      </div>
+      <div class="sm:col-span-2">
+        <label class="label">{{ 'form.notes' | translate }}</label>
+        <textarea class="input" rows="3" formControlName="notes"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div *ngIf="showActions && !locked" class="flex flex-wrap items-center justify-end gap-3">
+    <button type="button" (click)="onDownloadPdf()" class="btn-secondary">
+      {{ 'common.downloadPdf' | translate }}
+    </button>
+    <button *ngIf="mode === 'internal'" type="button" (click)="onSaveDraft()" class="btn-secondary">
+      {{ 'common.saveDraft' | translate }}
+    </button>
+    <button type="submit" class="btn-primary">
+      {{ mode === 'public' ? ('contact.send' | translate) : ('common.submit' | translate) }}
+    </button>
+  </div>
+</form>

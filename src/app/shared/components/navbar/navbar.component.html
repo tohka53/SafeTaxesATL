@@ -1,0 +1,54 @@
+<nav class="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur">
+  <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <!-- Brand -->
+    <a routerLink="/" class="flex items-center gap-2">
+      <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-sm font-extrabold text-white">ST</span>
+      <span class="text-lg font-extrabold tracking-tight text-gray-900">Safe Taxes <span class="text-brand-600">ATL</span></span>
+    </a>
+
+    <!-- Desktop links -->
+    <div class="hidden items-center gap-6 md:flex">
+      <a routerLink="/" class="text-sm font-medium text-gray-600 hover:text-brand-600">{{ 'nav.home' | translate }}</a>
+      <a routerLink="/" fragment="services" class="text-sm font-medium text-gray-600 hover:text-brand-600">{{ 'nav.services' | translate }}</a>
+      <a routerLink="/formulario" class="text-sm font-medium text-gray-600 hover:text-brand-600">{{ 'nav2.forms' | translate }}</a>
+      <a routerLink="/contact" class="text-sm font-medium text-gray-600 hover:text-brand-600">{{ 'nav.contact' | translate }}</a>
+
+      <ng-container *ngIf="auth.profile$ | async as profile; else anon">
+        <a *ngIf="isStaff(profile.role)" routerLink="/preparer" class="text-sm font-medium text-gray-600 hover:text-brand-600">{{ 'nav.clients' | translate }}</a>
+        <a routerLink="/client" class="text-sm font-semibold text-brand-600 hover:text-brand-700">{{ 'nav.dashboard' | translate }}</a>
+        <app-language-switcher></app-language-switcher>
+        <button type="button" (click)="logout()" class="btn-secondary !px-3 !py-1.5">{{ 'nav.logout' | translate }}</button>
+      </ng-container>
+
+      <ng-template #anon>
+        <app-language-switcher></app-language-switcher>
+        <a routerLink="/auth/login" class="text-sm font-medium text-gray-600 hover:text-brand-600">{{ 'nav.login' | translate }}</a>
+        <a routerLink="/auth/register" class="btn-primary !px-4 !py-1.5">{{ 'nav.register' | translate }}</a>
+      </ng-template>
+    </div>
+
+    <!-- Mobile toggle -->
+    <button type="button" (click)="mobileOpen = !mobileOpen" class="inline-flex items-center rounded-lg p-2 text-gray-600 hover:bg-gray-100 md:hidden" aria-label="menu">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+  </div>
+
+  <!-- Mobile menu -->
+  <div *ngIf="mobileOpen" class="border-t border-gray-200 bg-white px-4 py-3 md:hidden">
+    <div class="flex flex-col gap-3">
+      <a routerLink="/" (click)="mobileOpen = false" class="text-sm font-medium text-gray-700">{{ 'nav.home' | translate }}</a>
+      <a routerLink="/formulario" (click)="mobileOpen = false" class="text-sm font-medium text-gray-700">{{ 'nav2.forms' | translate }}</a>
+      <a routerLink="/contact" (click)="mobileOpen = false" class="text-sm font-medium text-gray-700">{{ 'nav.contact' | translate }}</a>
+      <ng-container *ngIf="auth.profile$ | async as profile; else anonM">
+        <a *ngIf="isStaff(profile.role)" routerLink="/preparer" (click)="mobileOpen = false" class="text-sm font-medium text-gray-700">{{ 'nav.clients' | translate }}</a>
+        <a routerLink="/client" (click)="mobileOpen = false" class="text-sm font-semibold text-brand-600">{{ 'nav.dashboard' | translate }}</a>
+        <button type="button" (click)="logout()" class="btn-secondary w-full">{{ 'nav.logout' | translate }}</button>
+      </ng-container>
+      <ng-template #anonM>
+        <a routerLink="/auth/login" (click)="mobileOpen = false" class="text-sm font-medium text-gray-700">{{ 'nav.login' | translate }}</a>
+        <a routerLink="/auth/register" (click)="mobileOpen = false" class="btn-primary w-full">{{ 'nav.register' | translate }}</a>
+      </ng-template>
+      <div class="pt-2"><app-language-switcher></app-language-switcher></div>
+    </div>
+  </div>
+</nav>

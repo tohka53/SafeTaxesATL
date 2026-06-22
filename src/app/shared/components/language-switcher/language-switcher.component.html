@@ -1,0 +1,24 @@
+<div class="inline-flex overflow-hidden rounded-lg border border-gray-300 text-xs font-semibold">
+  <button
+    type="button"
+    (click)="use('en')"
+    [class.bg-brand-600]="current === 'en'"
+    [class.text-white]="current === 'en'"
+    [class.bg-white]="current !== 'en'"
+    [class.text-gray-600]="current !== 'en'"
+    class="px-3 py-1.5 transition"
+  >
+    EN
+  </button>
+  <button
+    type="button"
+    (click)="use('es')"
+    [class.bg-brand-600]="current === 'es'"
+    [class.text-white]="current === 'es'"
+    [class.bg-white]="current !== 'es'"
+    [class.text-gray-600]="current !== 'es'"
+    class="px-3 py-1.5 transition"
+  >
+    ES
+  </button>
+</div>

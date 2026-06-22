@@ -1,0 +1,57 @@
+<form *ngIf="form" [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+  <div *ngIf="locked" class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+    {{ 'form.lockedNote' | translate }}
+  </div>
+
+  <div *ngFor="let section of def.sections" class="card">
+    <h3 class="mb-4 text-base font-semibold text-gray-900">{{ sectionTitle(section) }}</h3>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div *ngFor="let fld of section.fields" [ngClass]="{ 'sm:col-span-2': fld.full || fld.type === 'textarea' }">
+        <label class="label">{{ label(fld) }}</label>
+
+        <ng-container [ngSwitch]="fld.type">
+          <textarea *ngSwitchCase="'textarea'" class="input" rows="3" [formControlName]="fld.name"></textarea>
+
+          <select *ngSwitchCase="'yesno'" class="input" [formControlName]="fld.name">
+            <option value="">—</option>
+            <option value="yes">{{ 'common.yes' | translate }}</option>
+            <option value="no">{{ 'common.no' | translate }}</option>
+          </select>
+
+          <select *ngSwitchCase="'select'" class="input" [formControlName]="fld.name">
+            <option value="">—</option>
+            <option *ngFor="let o of fld.options" [value]="o.value">{{ translate.currentLang === 'en' ? o.en : o.es }}</option>
+          </select>
+
+          <select *ngSwitchCase="'state'" class="input" [formControlName]="fld.name">
+            <option value="">—</option>
+            <option *ngFor="let s of states" [value]="s.code">{{ s.name }}</option>
+          </select>
+
+          <select *ngSwitchCase="'city'" class="input" [formControlName]="fld.name">
+            <option value="">—</option>
+            <option *ngFor="let c of cityOptions(form.get(fld.name)?.value)" [value]="c">{{ c }}</option>
+          </select>
+
+          <select *ngSwitchCase="'bank'" class="input" [formControlName]="fld.name">
+            <option value="">—</option>
+            <option *ngFor="let b of bankOptions(form.get(fld.name)?.value)" [value]="b">{{ b }}</option>
+          </select>
+
+          <input *ngSwitchCase="'money'" class="input" type="number" step="0.01" [formControlName]="fld.name" />
+          <input *ngSwitchCase="'number'" class="input" type="number" [formControlName]="fld.name" />
+          <input *ngSwitchCase="'date'" class="input" type="date" [formControlName]="fld.name" />
+          <input *ngSwitchCase="'email'" class="input" type="email" [formControlName]="fld.name" />
+          <input *ngSwitchCase="'tel'" class="input" type="tel" [formControlName]="fld.name" />
+          <input *ngSwitchDefault class="input" type="text" [formControlName]="fld.name" autocomplete="off" />
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!locked" class="flex flex-wrap items-center justify-end gap-3">
+    <button type="button" (click)="onDownload()" class="btn-secondary">{{ 'common.downloadPdf' | translate }}</button>
+    <button *ngIf="mode === 'internal'" type="button" (click)="onSaveDraft()" class="btn-secondary">{{ 'common.saveDraft' | translate }}</button>
+    <button type="submit" class="btn-primary">{{ mode === 'public' ? ('contact.send' | translate) : ('common.submit' | translate) }}</button>
+  </div>
+</form>

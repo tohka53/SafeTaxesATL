@@ -1,0 +1,25 @@
+<div>
+  <ol class="flex flex-wrap items-center gap-y-4">
+    <li *ngFor="let step of steps; let i = index" class="flex flex-1 items-center min-w-[120px]">
+      <div class="flex flex-col items-center text-center">
+        <span
+          class="flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-bold transition"
+          [ngClass]="isDone(i)
+            ? 'border-accent-600 bg-accent-600 text-white'
+            : 'border-gray-300 bg-white text-gray-400'"
+        >
+          <span *ngIf="isDone(i) && !isCurrent(i)">✓</span>
+          <span *ngIf="!isDone(i) || isCurrent(i)">{{ i + 1 }}</span>
+        </span>
+        <span class="mt-1.5 text-xs font-medium" [ngClass]="isCurrent(i) ? 'text-brand-700' : 'text-gray-500'">
+          {{ 'process.' + step | translate }}
+        </span>
+      </div>
+      <div *ngIf="i < steps.length - 1" class="mx-2 h-0.5 flex-1" [ngClass]="i < currentIndex ? 'bg-accent-600' : 'bg-gray-200'"></div>
+    </li>
+  </ol>
+
+  <p *ngIf="current" class="mt-4 rounded-lg bg-brand-50 p-3 text-sm text-brand-800">
+    {{ 'process.' + current + 'Desc' | translate }}
+  </p>
+</div>

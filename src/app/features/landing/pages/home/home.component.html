@@ -1,0 +1,68 @@
+<!-- Hero -->
+<section class="relative overflow-hidden bg-gradient-to-br from-brand-700 via-brand-600 to-brand-800">
+  <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 20% 20%, white 1px, transparent 1px); background-size:24px 24px"></div>
+  <div class="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+    <div class="max-w-2xl">
+      <span class="badge bg-white/15 text-white">{{ 'app.tagline' | translate }}</span>
+      <h1 class="mt-4 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
+        {{ 'landing.heroTitle' | translate }}
+      </h1>
+      <p class="mt-4 text-lg text-brand-100">{{ 'landing.heroSubtitle' | translate }}</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a routerLink="/formulario" class="btn bg-white text-brand-700 hover:bg-brand-50">
+          {{ 'landing.ctaPrimary' | translate }}
+        </a>
+        <a routerLink="/contact" class="btn border border-white/40 text-white hover:bg-white/10">
+          {{ 'landing.ctaSecondary' | translate }}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section id="services" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+  <h2 class="text-center text-3xl font-extrabold text-gray-900">{{ 'landing.servicesTitle' | translate }}</h2>
+  <div class="mt-10 grid gap-6 md:grid-cols-3">
+    <div class="card transition hover:shadow-md">
+      <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-brand-100 text-xl">🧾</div>
+      <h3 class="text-lg font-semibold text-gray-900">{{ 'landing.service1Title' | translate }}</h3>
+      <p class="mt-2 text-sm text-gray-600">{{ 'landing.service1Desc' | translate }}</p>
+    </div>
+    <div class="card transition hover:shadow-md">
+      <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-brand-100 text-xl">👨‍👩‍👧</div>
+      <h3 class="text-lg font-semibold text-gray-900">{{ 'landing.service2Title' | translate }}</h3>
+      <p class="mt-2 text-sm text-gray-600">{{ 'landing.service2Desc' | translate }}</p>
+    </div>
+    <div class="card transition hover:shadow-md">
+      <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-brand-100 text-xl">💼</div>
+      <h3 class="text-lg font-semibold text-gray-900">{{ 'landing.service3Title' | translate }}</h3>
+      <p class="mt-2 text-sm text-gray-600">{{ 'landing.service3Desc' | translate }}</p>
+    </div>
+  </div>
+  <div class="mt-10 text-center">
+    <a routerLink="/formulario" class="btn-primary">{{ 'landing.ctaPrimary' | translate }}</a>
+  </div>
+</section>
+
+<!-- Steps + trust -->
+<section class="bg-white">
+  <div class="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:px-8">
+    <div>
+      <h2 class="text-2xl font-extrabold text-gray-900">{{ 'landing.stepsTitle' | translate }}</h2>
+      <ol class="mt-6 space-y-4">
+        <li class="flex gap-4"><span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">1</span><p class="pt-1 text-gray-700">{{ 'landing.step1' | translate }}</p></li>
+        <li class="flex gap-4"><span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">2</span><p class="pt-1 text-gray-700">{{ 'landing.step2' | translate }}</p></li>
+        <li class="flex gap-4"><span class="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">3</span><p class="pt-1 text-gray-700">{{ 'landing.step3' | translate }}</p></li>
+      </ol>
+    </div>
+    <div>
+      <h2 class="text-2xl font-extrabold text-gray-900">{{ 'landing.trustTitle' | translate }}</h2>
+      <ul class="mt-6 space-y-3">
+        <li class="flex items-center gap-3 text-gray-700"><span class="text-accent-600">✔</span> {{ 'landing.trust1' | translate }}</li>
+        <li class="flex items-center gap-3 text-gray-700"><span class="text-accent-600">✔</span> {{ 'landing.trust2' | translate }}</li>
+        <li class="flex items-center gap-3 text-gray-700"><span class="text-accent-600">✔</span> {{ 'landing.trust3' | translate }}</li>
+      </ul>
+    </div>
+  </div>
+</section>

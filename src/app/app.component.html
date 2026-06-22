@@ -1,0 +1,7 @@
+<app-navbar *ngIf="!isApp"></app-navbar>
+
+<main class="flex-1">
+  <router-outlet></router-outlet>
+</main>
+
+<app-footer *ngIf="!isApp"></app-footer>

@@ -1,0 +1,31 @@
+<section class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+  <header class="mb-6">
+    <h1 class="text-2xl font-extrabold text-gray-900">{{ 'process.title' | translate }}</h1>
+  </header>
+
+  <div *ngIf="loading" class="text-gray-500">{{ 'common.loading' | translate }}</div>
+
+  <div *ngIf="!loading && !forms.length" class="card text-center text-gray-500">
+    {{ 'client.myFormsEmpty' | translate }}
+  </div>
+
+  <div *ngFor="let f of forms" class="card mb-6">
+    <div class="mb-5 flex items-center justify-between">
+      <h2 class="text-lg font-bold text-gray-800">{{ 'common.year' | translate }} {{ f.tax_year }}</h2>
+      <span class="text-sm text-gray-500">{{ f.full_name }}</span>
+    </div>
+
+    <app-process-stepper [current]="f.process_status"></app-process-stepper>
+
+    <!-- Documents for this year -->
+    <div *ngIf="docsForYear(f.tax_year).length" class="mt-6 border-t border-gray-100 pt-4">
+      <h3 class="mb-3 text-sm font-semibold text-gray-700">{{ 'preparer.documents' | translate }}</h3>
+      <ul class="divide-y divide-gray-100">
+        <li *ngFor="let d of docsForYear(f.tax_year)" class="flex items-center justify-between py-2">
+          <span class="text-sm text-gray-800">{{ d.file_name }}</span>
+          <button type="button" (click)="openDoc(d)" class="btn-secondary !px-3 !py-1.5 text-xs">{{ 'common.download' | translate }}</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
