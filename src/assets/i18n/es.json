@@ -201,7 +201,30 @@
   "security": {
     "notice": "Sus datos (SSN, cuenta bancaria) se transmiten de forma segura y solo el personal autorizado puede verlos."
   },
-  "nav2": { "forms": "Formularios", "external": "Formularios externos" },
+  "nav2": { "forms": "Formularios", "external": "Formularios externos", "contacts": "Contactos" },
+  "contacts": {
+    "title": "Contactos / Clientes",
+    "subtitle": "Todos los clientes: selecciona algunos o todos, crea manualmente y registra la comunicación.",
+    "new": "Nuevo contacto",
+    "import": "Importar clientes existentes",
+    "markComm": "Marcar comunicación",
+    "total": "Total de clientes",
+    "selected": "Seleccionados",
+    "name": "Nombre",
+    "phone": "Teléfono",
+    "email": "Correo",
+    "notes": "Notas",
+    "lastComm": "Última comunicación",
+    "lastUpdate": "Última actualización",
+    "linked": "Vinculado",
+    "never": "Nunca",
+    "empty": "Aún no hay contactos.",
+    "linkHint": "Si el teléfono ya está registrado en un perfil, se vincula automáticamente.",
+    "sendEmail": "Enviar correo",
+    "sendSms": "Enviar SMS",
+    "scopeHint": "Correo/SMS se aplica a los seleccionados, o a todos si no hay selección.",
+    "noRecipients": "No hay destinatarios con ese dato."
+  },
   "ext": {
     "title": "Formularios recibidos (externos)",
     "subtitle": "Todos los formularios llenados desde el sitio público. Solo administradores.",

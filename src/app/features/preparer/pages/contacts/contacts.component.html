@@ -1,0 +1,94 @@
+<section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+  <header class="mb-6 flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold text-gray-900">{{ 'contacts.title' | translate }}</h1>
+      <p class="mt-1 text-gray-600">{{ 'contacts.subtitle' | translate }}</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button type="button" (click)="importExisting()" class="btn-secondary" [disabled]="importing">
+        {{ importing ? ('common.loading' | translate) : ('contacts.import' | translate) }}
+      </button>
+      <button type="button" (click)="newContact()" class="btn-primary">+ {{ 'contacts.new' | translate }}</button>
+    </div>
+  </header>
+
+  <!-- Counters -->
+  <div class="mb-5 flex flex-wrap gap-3">
+    <div class="card flex items-center gap-3 !py-3">
+      <span class="text-2xl font-extrabold text-brand-600">{{ total }}</span>
+      <span class="text-sm text-gray-500">{{ 'contacts.total' | translate }}</span>
+    </div>
+    <div class="card flex items-center gap-3 !py-3">
+      <span class="text-2xl font-extrabold text-accent-600">{{ selectedCount }}</span>
+      <span class="text-sm text-gray-500">{{ 'contacts.selected' | translate }}</span>
+    </div>
+    <button type="button" (click)="emailScope()" class="btn-secondary self-stretch">✉️ {{ 'contacts.sendEmail' | translate }}</button>
+    <button type="button" (click)="smsScope()" class="btn-secondary self-stretch">💬 {{ 'contacts.sendSms' | translate }}</button>
+    <button type="button" (click)="markSelected()" [disabled]="!selectedCount" class="btn-success self-stretch">
+      {{ 'contacts.markComm' | translate }}
+    </button>
+  </div>
+  <p class="mb-5 -mt-3 text-xs text-gray-400">{{ 'contacts.scopeHint' | translate }}</p>
+
+  <!-- Create / edit form -->
+  <div *ngIf="showForm" class="card mb-6">
+    <h3 class="mb-4 text-base font-semibold text-gray-900">{{ (editingId ? 'common.edit' : 'contacts.new') | translate }}</h3>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div><label class="label">{{ 'contacts.name' | translate }}</label><input class="input" type="text" [(ngModel)]="editModel.full_name" /></div>
+      <div><label class="label">{{ 'contacts.phone' | translate }}</label><input class="input" type="tel" [(ngModel)]="editModel.phone" placeholder="(404) 555-0123" /></div>
+      <div><label class="label">{{ 'contacts.email' | translate }}</label><input class="input" type="email" [(ngModel)]="editModel.email" /></div>
+      <div class="sm:col-span-2"><label class="label">{{ 'contacts.notes' | translate }}</label><textarea class="input" rows="2" [(ngModel)]="editModel.notes"></textarea></div>
+    </div>
+    <p class="mt-2 text-xs text-gray-400">{{ 'contacts.linkHint' | translate }}</p>
+    <div class="mt-4 flex justify-end gap-2">
+      <button type="button" (click)="cancel()" class="btn-secondary">{{ 'common.cancel' | translate }}</button>
+      <button type="button" (click)="save()" class="btn-primary" [disabled]="saving">{{ saving ? ('common.saving' | translate) : ('common.save' | translate) }}</button>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="mb-4">
+    <input class="input" type="text" [(ngModel)]="q" [placeholder]="'common.search' | translate" />
+  </div>
+
+  <div *ngIf="loading" class="text-gray-500">{{ 'common.loading' | translate }}</div>
+  <div *ngIf="!loading && !filtered.length" class="card text-center text-gray-500">{{ 'contacts.empty' | translate }}</div>
+
+  <div *ngIf="!loading && filtered.length" class="overflow-hidden rounded-xl border border-gray-200 bg-white">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
+        <tr>
+          <th class="px-3 py-3"><input type="checkbox" [checked]="allSelected" (change)="toggleAll()" /></th>
+          <th class="px-3 py-3">{{ 'contacts.name' | translate }}</th>
+          <th class="px-3 py-3">{{ 'contacts.phone' | translate }}</th>
+          <th class="px-3 py-3">{{ 'contacts.email' | translate }}</th>
+          <th class="px-3 py-3">{{ 'contacts.lastComm' | translate }}</th>
+          <th class="px-3 py-3">{{ 'contacts.lastUpdate' | translate }}</th>
+          <th class="px-3 py-3 text-right">{{ 'common.actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <tr *ngFor="let c of filtered" class="hover:bg-gray-50" [class.bg-brand-50]="isSelected(c.id)">
+          <td class="px-3 py-3"><input type="checkbox" [checked]="isSelected(c.id)" (change)="toggle(c.id)" /></td>
+          <td class="px-3 py-3 font-medium text-gray-900">
+            {{ c.full_name || '—' }}
+            <span *ngIf="c.linked_profile_id" class="badge ml-1 bg-green-100 text-green-700">{{ 'contacts.linked' | translate }}</span>
+          </td>
+          <td class="px-3 py-3 text-gray-700">{{ c.phone || '—' }}</td>
+          <td class="px-3 py-3 text-gray-600">{{ c.email || '—' }}</td>
+          <td class="px-3 py-3 text-gray-600">{{ c.last_communication ? (c.last_communication | date: 'short') : ('contacts.never' | translate) }}</td>
+          <td class="px-3 py-3 text-gray-500">{{ c.last_update | date: 'short' }}</td>
+          <td class="px-3 py-3">
+            <div class="flex justify-end gap-2">
+              <button type="button" (click)="emailOne(c)" [disabled]="!c.email" title="Email" class="btn-secondary !px-2.5 !py-1.5 text-xs">✉️</button>
+              <button type="button" (click)="smsOne(c)" [disabled]="!c.phone" title="SMS" class="btn-secondary !px-2.5 !py-1.5 text-xs">💬</button>
+              <button type="button" (click)="markOne(c)" title="{{ 'contacts.markComm' | translate }}" class="btn-secondary !px-2.5 !py-1.5 text-xs">📞</button>
+              <button type="button" (click)="edit(c)" class="btn-secondary !px-2.5 !py-1.5 text-xs">{{ 'common.edit' | translate }}</button>
+              <button type="button" (click)="remove(c)" class="btn-secondary !px-2.5 !py-1.5 text-xs text-red-600">{{ 'common.delete' | translate }}</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

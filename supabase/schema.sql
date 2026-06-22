@@ -233,6 +233,30 @@ create policy leads_update_staff on public.leads
   for update using (public.is_staff()) with check (public.is_staff());
 
 -- =====================================================================
+--  CRM CONTACTS  (clients list: existing + manually added, linked by phone)
+-- =====================================================================
+create table if not exists public.crm_contacts (
+  id                 uuid primary key default gen_random_uuid(),
+  full_name          text,
+  phone              text,
+  email              text,
+  notes              text,
+  linked_profile_id  uuid references public.profiles(id) on delete set null,
+  last_communication timestamptz,
+  last_update        timestamptz default now(),
+  created_by         uuid references auth.users(id),
+  created_at         timestamptz default now()
+);
+
+create index if not exists idx_crm_contacts_phone on public.crm_contacts(phone);
+
+alter table public.crm_contacts enable row level security;
+
+drop policy if exists crm_contacts_staff on public.crm_contacts;
+create policy crm_contacts_staff on public.crm_contacts
+  for all using (public.is_staff()) with check (public.is_staff());
+
+-- =====================================================================
 --  STORAGE  (private bucket for finished returns)
 -- =====================================================================
 insert into storage.buckets (id, name, public)
@@ -261,7 +285,7 @@ create policy "tax docs owner read" on storage.objects
 -- =====================================================================
 grant usage on schema public to anon, authenticated;
 grant select, insert, update, delete
-  on public.profiles, public.tax_forms, public.documents to authenticated;
+  on public.profiles, public.tax_forms, public.documents, public.crm_contacts to authenticated;
 grant select, insert, update on public.leads to authenticated;
 grant insert on public.leads to anon;   -- anonymous landing submissions only
 

@@ -201,7 +201,30 @@
   "security": {
     "notice": "Your data (SSN, bank account) is transmitted securely and only authorized staff can view it."
   },
-  "nav2": { "forms": "Forms", "external": "External forms" },
+  "nav2": { "forms": "Forms", "external": "External forms", "contacts": "Contacts" },
+  "contacts": {
+    "title": "Contacts / Clients",
+    "subtitle": "All clients: select some or all, add manually, and log communication.",
+    "new": "New contact",
+    "import": "Import existing clients",
+    "markComm": "Mark communication",
+    "total": "Total clients",
+    "selected": "Selected",
+    "name": "Name",
+    "phone": "Phone",
+    "email": "Email",
+    "notes": "Notes",
+    "lastComm": "Last communication",
+    "lastUpdate": "Last update",
+    "linked": "Linked",
+    "never": "Never",
+    "empty": "No contacts yet.",
+    "linkHint": "If the phone is already registered in a profile, it is linked automatically.",
+    "sendEmail": "Send email",
+    "sendSms": "Send text",
+    "scopeHint": "Email/SMS applies to selected, or to all if none selected.",
+    "noRecipients": "No recipients with that field."
+  },
   "ext": {
     "title": "Received forms (external)",
     "subtitle": "All forms submitted from the public site. Admins only.",

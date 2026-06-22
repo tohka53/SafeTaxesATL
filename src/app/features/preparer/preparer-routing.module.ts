@@ -7,6 +7,7 @@ import { UserRole } from '@core/models/user-role.enum';
 import { ClientsComponent } from './pages/clients/clients.component';
 import { ClientDetailComponent } from './pages/client-detail/client-detail.component';
 import { LeadsComponent } from './pages/leads/leads.component';
+import { ContactsComponent } from './pages/contacts/contacts.component';
 
 const routes: Routes = [
   {
@@ -14,6 +15,7 @@ const routes: Routes = [
     component: ShellComponent,
     children: [
       { path: '', component: ClientsComponent },
+      { path: 'contacts', component: ContactsComponent },
       {
         path: 'leads',
         component: LeadsComponent,
