@@ -15,5 +15,7 @@ export const environment = {
   // Todos los formularios nuevos se envían aquí (para pruebas/verificación).
   contactEmail: 'mecg1994@gmail.com',
   // Clave de ofuscación de IDs en la URL (no es seguridad real; ver RLS).
-  idKey: 'stATL-2026-k9'
+  idKey: 'stATL-2026-k9',
+  // URL pública de la app (para los correos de confirmación, no localhost).
+  siteUrl: 'https://safetaxesatl.vercel.app'
 };

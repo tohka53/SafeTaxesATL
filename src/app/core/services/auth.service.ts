@@ -5,6 +5,7 @@ import { AuthSession } from '@supabase/supabase-js';
 import { SupabaseService } from './supabase.service';
 import { Profile } from '@core/models/profile.model';
 import { UserRole } from '@core/models/user-role.enum';
+import { environment } from '@env/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -70,7 +71,10 @@ export class AuthService {
     const { data, error } = await this.sb.client.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } }
+      options: {
+        data: { full_name: fullName },
+        emailRedirectTo: `${environment.siteUrl}/auth/login`
+      }
     });
     if (error) {
       throw error;
