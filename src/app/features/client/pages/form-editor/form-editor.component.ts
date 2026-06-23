@@ -13,6 +13,7 @@ import {
 } from '@core/models/intake.util';
 import { FormDef, findFormDef } from '@core/models/form-def.model';
 import { Profile } from '@core/models/profile.model';
+import { decodeId } from '@core/utils/crypto-id';
 
 @Component({
   selector: 'app-client-form-editor',
@@ -41,7 +42,7 @@ export class FormEditorComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.userId = this.auth.userId;
-    const id = this.route.snapshot.paramMap.get('id');
+    const id = decodeId(this.route.snapshot.paramMap.get('id'));
     const type = this.route.snapshot.paramMap.get('type');
 
     if (id && id !== 'new') {

@@ -12,8 +12,15 @@
     </div>
   </header>
 
-  <!-- Outreach message (prefilled into SMS/email) -->
-  <div class="mb-3">
+  <!-- Outreach message (template + subject + body, prefilled into SMS/email) -->
+  <div class="mb-3 space-y-2">
+    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <select class="input" [(ngModel)]="selectedTemplateId" (ngModelChange)="applyTemplate()">
+        <option value="">{{ 'tpl.pick' | translate }}</option>
+        <option *ngFor="let t of templates" [value]="t.id">{{ t.name }} ({{ (t.type === 'email' ? 'tpl.email' : 'tpl.sms') | translate }})</option>
+      </select>
+      <input class="input" type="text" [(ngModel)]="outreachSubject" [placeholder]="'tpl.subject' | translate" />
+    </div>
     <input class="input" type="text" [(ngModel)]="outreachMessage" [placeholder]="'contacts.message' | translate" />
   </div>
 
@@ -46,6 +53,7 @@
       <div class="sm:col-span-2"><label class="label">{{ 'contacts.notes' | translate }}</label><textarea class="input" rows="2" [(ngModel)]="editModel.notes"></textarea></div>
     </div>
     <p class="mt-2 text-xs text-gray-400">{{ 'contacts.linkHint' | translate }}</p>
+    <p *ngIf="error" class="mt-2 rounded-lg border border-red-200 bg-red-50 p-2 text-sm text-red-700">{{ error }}</p>
     <div class="mt-4 flex justify-end gap-2">
       <button type="button" (click)="cancel()" class="btn-secondary">{{ 'common.cancel' | translate }}</button>
       <button type="button" (click)="save()" class="btn-primary" [disabled]="saving">{{ saving ? ('common.saving' | translate) : ('common.save' | translate) }}</button>
@@ -86,8 +94,8 @@
           <td class="px-3 py-3 text-gray-500">{{ c.last_update | date: 'short' }}</td>
           <td class="px-3 py-3">
             <div class="flex justify-end gap-2">
-              <button type="button" (click)="emailOne(c)" [disabled]="!c.email" title="Email" class="btn-secondary !px-2.5 !py-1.5 text-xs">✉️</button>
-              <button type="button" (click)="smsOne(c)" [disabled]="!c.phone" title="SMS" class="btn-secondary !px-2.5 !py-1.5 text-xs">💬</button>
+              <button type="button" (click)="emailOne(c)" [disabled]="!c.email || wasEmailed(c.id)" [title]="wasEmailed(c.id) ? 'Email ✓' : 'Email'" class="btn-secondary !px-2.5 !py-1.5 text-xs">{{ wasEmailed(c.id) ? '✓ ✉️' : '✉️' }}</button>
+              <button type="button" (click)="smsOne(c)" [disabled]="!c.phone || wasSmsed(c.id)" [title]="wasSmsed(c.id) ? 'SMS ✓' : 'SMS'" class="btn-secondary !px-2.5 !py-1.5 text-xs">{{ wasSmsed(c.id) ? '✓ 💬' : '💬' }}</button>
               <button type="button" (click)="markOne(c)" title="{{ 'contacts.markComm' | translate }}" class="btn-secondary !px-2.5 !py-1.5 text-xs">📞</button>
               <button type="button" (click)="edit(c)" class="btn-secondary !px-2.5 !py-1.5 text-xs">{{ 'common.edit' | translate }}</button>
               <button type="button" (click)="remove(c)" class="btn-secondary !px-2.5 !py-1.5 text-xs text-red-600">{{ 'common.delete' | translate }}</button>

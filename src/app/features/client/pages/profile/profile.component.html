@@ -45,10 +45,10 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="label">{{ 'form.city' | translate }}</label>
-            <select class="input" formControlName="city">
-              <option value="">—</option>
-              <option *ngFor="let c of cityOptions(form.get('city')?.value)" [value]="c">{{ c }}</option>
-            </select>
+            <input class="input" type="text" formControlName="city" list="dlProfileCity" autocomplete="off" />
+            <datalist id="dlProfileCity">
+              <option *ngFor="let c of cityOptions(form.get('city')?.value)" [value]="c"></option>
+            </datalist>
           </div>
           <div>
             <label class="label">{{ 'form.zip' | translate }}</label>

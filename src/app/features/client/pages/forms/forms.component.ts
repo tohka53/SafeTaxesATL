@@ -7,6 +7,7 @@ import { TaxFormService } from '@core/services/tax-form.service';
 import { PdfService } from '@core/services/pdf.service';
 import { FormStatus, TaxForm } from '@core/models/tax-form.model';
 import { FORM_DEFINITIONS, FormDef, findFormDef } from '@core/models/form-def.model';
+import { encodeId } from '@core/utils/crypto-id';
 
 @Component({
   selector: 'app-client-forms',
@@ -64,7 +65,7 @@ export class FormsComponent implements OnInit {
   }
 
   open(form: TaxForm): void {
-    void this.router.navigate(['/client/forms', form.id]);
+    void this.router.navigate(['/client/forms', encodeId(form.id)]);
   }
 
   download(form: TaxForm): void {

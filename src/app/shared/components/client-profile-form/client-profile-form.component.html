@@ -48,13 +48,13 @@
   <!-- 2. Taxpayer -->
   <div class="card">
     <h3 class="mb-4 text-base font-semibold text-gray-900">{{ 'pf.sec2' | translate }}</h3>
-    <ng-container *ngTemplateOutlet="personTpl; context: { $implicit: taxpayer, req: true }"></ng-container>
+    <ng-container *ngTemplateOutlet="personTpl; context: { $implicit: taxpayer, req: true, key: 'tp' }"></ng-container>
   </div>
 
   <!-- 3. Spouse -->
   <div class="card">
     <h3 class="mb-4 text-base font-semibold text-gray-900">{{ 'pf.sec3' | translate }}</h3>
-    <ng-container *ngTemplateOutlet="personTpl; context: { $implicit: spouse, req: false }"></ng-container>
+    <ng-container *ngTemplateOutlet="personTpl; context: { $implicit: spouse, req: false, key: 'sp' }"></ng-container>
   </div>
 
   <!-- 4. Dependents -->
@@ -142,10 +142,10 @@
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div><label class="label">{{ 'form.city' | translate }}</label>
-          <select class="input" formControlName="se_city">
-            <option value="">—</option>
-            <option *ngFor="let c of cityOptions(form.get('se_state')?.value, form.get('se_city')?.value)" [value]="c">{{ c }}</option>
-          </select>
+          <input class="input" type="text" formControlName="se_city" list="dlSeCity" autocomplete="off" />
+          <datalist id="dlSeCity">
+            <option *ngFor="let c of cityOptions(form.get('se_state')?.value, form.get('se_city')?.value)" [value]="c"></option>
+          </datalist>
         </div>
         <div><label class="label">{{ 'form.zip' | translate }}</label><input class="input" type="text" formControlName="se_zip" /></div>
       </div>
@@ -235,7 +235,7 @@
 </form>
 
 <!-- Reusable person block (taxpayer / spouse) -->
-<ng-template #personTpl let-grp let-req="req">
+<ng-template #personTpl let-grp let-req="req" let-key="key">
   <div [formGroup]="grp" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
     <div>
       <label class="label">{{ 'pf.firstName' | translate }}<span *ngIf="req"> *</span></label>
@@ -256,10 +256,10 @@
     </div>
     <div class="grid grid-cols-2 gap-4">
       <div><label class="label">{{ 'form.city' | translate }}</label>
-        <select class="input" formControlName="city">
-          <option value="">—</option>
-          <option *ngFor="let c of cityOptions(grp.get('state')?.value, grp.get('city')?.value)" [value]="c">{{ c }}</option>
-        </select>
+        <input class="input" type="text" formControlName="city" [attr.list]="'dlCity_' + key" autocomplete="off" />
+        <datalist [id]="'dlCity_' + key">
+          <option *ngFor="let c of cityOptions(grp.get('state')?.value, grp.get('city')?.value)" [value]="c"></option>
+        </datalist>
       </div>
       <div><label class="label">{{ 'form.zip' | translate }}</label><input class="input" type="text" maxlength="10" formControlName="zip" /></div>
     </div>

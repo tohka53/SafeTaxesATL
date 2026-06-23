@@ -28,10 +28,12 @@
             <option *ngFor="let s of states" [value]="s.code">{{ s.name }}</option>
           </select>
 
-          <select *ngSwitchCase="'city'" class="input" [formControlName]="fld.name">
-            <option value="">—</option>
-            <option *ngFor="let c of cityOptions(form.get(fld.name)?.value)" [value]="c">{{ c }}</option>
-          </select>
+          <ng-container *ngSwitchCase="'city'">
+            <input class="input" type="text" [formControlName]="fld.name" [attr.list]="'dl_' + fld.name" autocomplete="off" />
+            <datalist [id]="'dl_' + fld.name">
+              <option *ngFor="let c of cityOptions(form.get(fld.name)?.value)" [value]="c"></option>
+            </datalist>
+          </ng-container>
 
           <select *ngSwitchCase="'bank'" class="input" [formControlName]="fld.name">
             <option value="">—</option>

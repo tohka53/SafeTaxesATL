@@ -8,6 +8,7 @@ import { ClientsComponent } from './pages/clients/clients.component';
 import { ClientDetailComponent } from './pages/client-detail/client-detail.component';
 import { LeadsComponent } from './pages/leads/leads.component';
 import { ContactsComponent } from './pages/contacts/contacts.component';
+import { TemplatesComponent } from './pages/templates/templates.component';
 
 const routes: Routes = [
   {
@@ -16,6 +17,7 @@ const routes: Routes = [
     children: [
       { path: '', component: ClientsComponent },
       { path: 'contacts', component: ContactsComponent },
+      { path: 'templates', component: TemplatesComponent },
       {
         path: 'leads',
         component: LeadsComponent,

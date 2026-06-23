@@ -10,5 +10,7 @@ export const environment = {
   supabaseAnonKey: 'sb_publishable_z0UV5AV6laPrGw7-I5Vd5g_1Rs4bkJt',
   defaultLang: 'en',
   // Todos los formularios nuevos se envían aquí (para pruebas/verificación).
-  contactEmail: 'mecg1994@gmail.com'
+  contactEmail: 'mecg1994@gmail.com',
+  // Clave de ofuscación de IDs en la URL (no es seguridad real; ver RLS).
+  idKey: 'stATL-2026-k9'
 };

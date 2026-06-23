@@ -257,6 +257,73 @@ create policy crm_contacts_staff on public.crm_contacts
   for all using (public.is_staff()) with check (public.is_staff());
 
 -- =====================================================================
+--  TAX CASES  (per client/year process the staff drives, client views)
+-- =====================================================================
+create table if not exists public.tax_cases (
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid not null references auth.users(id) on delete cascade,
+  tax_year     int  not null,
+  status       text not null default 'started' check (status in ('started','in_process','finished')),
+  requested    jsonb,
+  request_note text,
+  started_at   timestamptz default now(),
+  updated_at   timestamptz default now(),
+  created_by   uuid references auth.users(id),
+  unique (user_id, tax_year)
+);
+
+alter table public.tax_cases enable row level security;
+
+drop policy if exists tax_cases_select on public.tax_cases;
+create policy tax_cases_select on public.tax_cases
+  for select using (user_id = auth.uid() or public.is_staff());
+
+drop policy if exists tax_cases_write on public.tax_cases;
+create policy tax_cases_write on public.tax_cases
+  for all using (public.is_staff()) with check (public.is_staff());
+
+-- =====================================================================
+--  MESSAGE TEMPLATES  (predefined email / SMS messages)
+-- =====================================================================
+create table if not exists public.message_templates (
+  id          uuid primary key default gen_random_uuid(),
+  name        text not null,
+  type        text not null default 'email' check (type in ('email','sms')),
+  subject     text,
+  body        text,
+  created_by  uuid references auth.users(id),
+  created_at  timestamptz default now(),
+  updated_at  timestamptz default now()
+);
+
+alter table public.message_templates enable row level security;
+
+drop policy if exists message_templates_staff on public.message_templates;
+create policy message_templates_staff on public.message_templates
+  for all using (public.is_staff()) with check (public.is_staff());
+
+-- =====================================================================
+--  MESSAGE LOG  (record of sent email/SMS to avoid duplicate sends)
+-- =====================================================================
+create table if not exists public.message_log (
+  id          uuid primary key default gen_random_uuid(),
+  contact_id  uuid references public.crm_contacts(id) on delete cascade,
+  channel     text not null check (channel in ('email','sms')),
+  subject     text,
+  body        text,
+  sent_by     uuid references auth.users(id),
+  sent_at     timestamptz default now()
+);
+
+create index if not exists idx_message_log_contact on public.message_log(contact_id, channel);
+
+alter table public.message_log enable row level security;
+
+drop policy if exists message_log_staff on public.message_log;
+create policy message_log_staff on public.message_log
+  for all using (public.is_staff()) with check (public.is_staff());
+
+-- =====================================================================
 --  STORAGE  (private bucket for finished returns)
 -- =====================================================================
 insert into storage.buckets (id, name, public)
@@ -285,7 +352,7 @@ create policy "tax docs owner read" on storage.objects
 -- =====================================================================
 grant usage on schema public to anon, authenticated;
 grant select, insert, update, delete
-  on public.profiles, public.tax_forms, public.documents, public.crm_contacts to authenticated;
+  on public.profiles, public.tax_forms, public.documents, public.crm_contacts, public.message_templates, public.message_log, public.tax_cases to authenticated;
 grant select, insert, update on public.leads to authenticated;
 grant insert on public.leads to anon;   -- anonymous landing submissions only
 

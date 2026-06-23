@@ -5,6 +5,7 @@ import { ProfileService } from '@core/services/profile.service';
 import { AuthService } from '@core/services/auth.service';
 import { Profile } from '@core/models/profile.model';
 import { UserRole } from '@core/models/user-role.enum';
+import { encodeId } from '@core/utils/crypto-id';
 
 @Component({
   selector: 'app-preparer-clients',
@@ -48,6 +49,6 @@ export class ClientsComponent implements OnInit {
   }
 
   open(client: Profile): void {
-    void this.router.navigate(['/preparer/clients', client.id]);
+    void this.router.navigate(['/preparer/clients', encodeId(client.id)]);
   }
 }

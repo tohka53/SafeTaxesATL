@@ -5,27 +5,66 @@
 
   <div *ngIf="loading" class="text-gray-500">{{ 'common.loading' | translate }}</div>
 
-  <div *ngIf="!loading && !forms.length" class="card text-center text-gray-500">
+  <div *ngIf="!loading && !cases.length && !forms.length" class="card text-center text-gray-500">
     {{ 'client.myFormsEmpty' | translate }}
   </div>
 
-  <div *ngFor="let f of forms" class="card mb-6">
-    <div class="mb-5 flex items-center justify-between">
-      <h2 class="text-lg font-bold text-gray-800">{{ 'common.year' | translate }} {{ f.tax_year }}</h2>
-      <span class="text-sm text-gray-500">{{ f.full_name }}</span>
+  <!-- Tax process cases (driven by the preparer) -->
+  <div *ngFor="let c of cases" class="card mb-6">
+    <div class="mb-4 flex items-center justify-between">
+      <h2 class="text-lg font-bold text-gray-800">{{ 'common.year' | translate }} {{ c.tax_year }}</h2>
+      <span class="badge" [ngClass]="c.status === 'finished' ? 'bg-green-100 text-green-700' : c.status === 'in_process' ? 'bg-amber-100 text-amber-700' : 'bg-brand-100 text-brand-700'">{{ statusLabel(c.status) }}</span>
     </div>
 
-    <app-process-stepper [current]="f.process_status"></app-process-stepper>
+    <ol class="flex items-center">
+      <li *ngFor="let s of ['started', 'in_process', 'finished']; let i = index" class="flex flex-1 items-center">
+        <div class="flex flex-col items-center text-center">
+          <span class="flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold"
+            [ngClass]="i <= stepIndex(c.status) ? 'border-accent-600 bg-accent-600 text-white' : 'border-gray-300 bg-white text-gray-400'">{{ i + 1 }}</span>
+          <span class="mt-1 text-xs" [ngClass]="i === stepIndex(c.status) ? 'font-semibold text-brand-700' : 'text-gray-500'">{{ 'cse.' + s | translate }}</span>
+        </div>
+        <div *ngIf="i < 2" class="mx-2 h-0.5 flex-1" [ngClass]="i < stepIndex(c.status) ? 'bg-accent-600' : 'bg-gray-200'"></div>
+      </li>
+    </ol>
 
-    <!-- Documents for this year -->
-    <div *ngIf="docsForYear(f.tax_year).length" class="mt-6 border-t border-gray-100 pt-4">
-      <h3 class="mb-3 text-sm font-semibold text-gray-700">{{ 'preparer.documents' | translate }}</h3>
+    <!-- Requested documents / data -->
+    <div *ngIf="(c.requested && c.requested.length) || c.request_note" class="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4">
+      <h3 class="mb-2 text-sm font-semibold text-amber-800">📋 {{ 'cse.requested' | translate }}</h3>
+      <ul class="list-disc pl-5 text-sm text-amber-800">
+        <li *ngFor="let it of c.requested">{{ reqLabel(it) }}</li>
+      </ul>
+      <p *ngIf="c.request_note" class="mt-2 text-sm text-amber-800">{{ c.request_note }}</p>
+    </div>
+
+    <!-- Final document(s) -->
+    <div *ngIf="docsForYear(c.tax_year).length" class="mt-5 border-t border-gray-100 pt-4">
+      <h3 class="mb-3 text-sm font-semibold text-gray-700">{{ (c.status === 'finished' ? 'cse.finalDoc' : 'preparer.documents') | translate }}</h3>
       <ul class="divide-y divide-gray-100">
-        <li *ngFor="let d of docsForYear(f.tax_year)" class="flex items-center justify-between py-2">
-          <span class="text-sm text-gray-800">{{ d.file_name }}</span>
+        <li *ngFor="let d of docsForYear(c.tax_year)" class="flex items-center justify-between py-2">
+          <span class="text-sm text-gray-800">📄 {{ d.file_name }}</span>
           <button type="button" (click)="openDoc(d)" class="btn-secondary !px-3 !py-1.5 text-xs">{{ 'common.download' | translate }}</button>
         </li>
       </ul>
+    </div>
+  </div>
+
+  <!-- Fallback: form-level progress when there are no cases yet -->
+  <div *ngIf="!cases.length">
+    <div *ngFor="let f of forms" class="card mb-6">
+      <div class="mb-5 flex items-center justify-between">
+        <h2 class="text-lg font-bold text-gray-800">{{ 'common.year' | translate }} {{ f.tax_year }}</h2>
+        <span class="text-sm text-gray-500">{{ f.full_name }}</span>
+      </div>
+      <app-process-stepper [current]="f.process_status"></app-process-stepper>
+      <div *ngIf="docsForYear(f.tax_year).length" class="mt-6 border-t border-gray-100 pt-4">
+        <h3 class="mb-3 text-sm font-semibold text-gray-700">{{ 'preparer.documents' | translate }}</h3>
+        <ul class="divide-y divide-gray-100">
+          <li *ngFor="let d of docsForYear(f.tax_year)" class="flex items-center justify-between py-2">
+            <span class="text-sm text-gray-800">{{ d.file_name }}</span>
+            <button type="button" (click)="openDoc(d)" class="btn-secondary !px-3 !py-1.5 text-xs">{{ 'common.download' | translate }}</button>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>

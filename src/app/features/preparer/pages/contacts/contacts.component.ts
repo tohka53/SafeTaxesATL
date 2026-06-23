@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 import { ContactService } from '@core/services/contact.service';
+import { TemplateService } from '@core/services/template.service';
+import { MessageLogService } from '@core/services/message-log.service';
 import { CrmContact } from '@core/models/contact.model';
+import { MessageTemplate } from '@core/models/message-template.model';
 import { usPhoneE164 } from '@shared/directives/us-phone.directive';
 
 @Component({
@@ -15,17 +18,32 @@ export class ContactsComponent implements OnInit {
   contacts: CrmContact[] = [];
   q = '';
   outreachMessage = '';
+  outreachSubject = '';
+  selectedTemplateId = '';
+  templates: MessageTemplate[] = [];
+  emailedIds = new Set<string>();
+  smsedIds = new Set<string>();
   selected = new Set<string>();
 
   showForm = false;
   editingId: string | null = null;
   editModel: Partial<CrmContact> = {};
   message = '';
+  error = '';
 
-  constructor(private readonly contactService: ContactService) {}
+  constructor(
+    private readonly contactService: ContactService,
+    private readonly templateService: TemplateService,
+    private readonly logService: MessageLogService
+  ) {}
 
   async ngOnInit(): Promise<void> {
     await this.reload();
+    try {
+      this.templates = await this.templateService.list();
+    } catch (e) {
+      console.warn('templates load', e);
+    }
   }
 
   private async reload(): Promise<void> {
@@ -33,10 +51,60 @@ export class ContactsComponent implements OnInit {
     try {
       this.contacts = await this.contactService.list();
       this.selected.clear();
+      try {
+        const logs = await this.logService.list();
+        this.emailedIds = new Set(
+          logs.filter((l) => l.channel === 'email').map((l) => l.contact_id)
+        );
+        this.smsedIds = new Set(
+          logs.filter((l) => l.channel === 'sms').map((l) => l.contact_id)
+        );
+      } catch (e) {
+        console.warn('message log load', e);
+      }
     } catch (e) {
       console.warn('contacts load', e);
     } finally {
       this.loading = false;
+    }
+  }
+
+  applyTemplate(): void {
+    const t = this.templates.find((x) => x.id === this.selectedTemplateId);
+    if (!t) {
+      return;
+    }
+    this.outreachMessage = t.body ?? '';
+    if (t.type === 'email') {
+      this.outreachSubject = t.subject ?? '';
+    }
+  }
+
+  wasEmailed(id?: string): boolean {
+    return !!id && this.emailedIds.has(id);
+  }
+  wasSmsed(id?: string): boolean {
+    return !!id && this.smsedIds.has(id);
+  }
+
+  private async logSends(list: CrmContact[], channel: 'email' | 'sms'): Promise<void> {
+    const entries = list
+      .filter((c) => c.id)
+      .map((c) => ({
+        contact_id: c.id as string,
+        channel,
+        subject: channel === 'email' ? this.outreachSubject || null : null,
+        body: this.outreachMessage || null
+      }));
+    try {
+      await this.logService.log(entries);
+    } catch (e) {
+      console.warn('log send', e);
+    }
+    for (const c of list) {
+      if (c.id) {
+        (channel === 'email' ? this.emailedIds : this.smsedIds).add(c.id);
+      }
     }
   }
 
@@ -100,6 +168,7 @@ export class ContactsComponent implements OnInit {
 
   async save(): Promise<void> {
     this.saving = true;
+    this.error = '';
     try {
       if (this.editingId) {
         await this.contactService.update({
@@ -112,6 +181,9 @@ export class ContactsComponent implements OnInit {
       this.cancel();
       await this.reload();
     } catch (e) {
+      this.error =
+        (e as { message?: string })?.message ||
+        'No se pudo guardar. ¿Corriste supabase/migration-contacts.sql?';
       console.warn('save contact', e);
     } finally {
       this.saving = false;
@@ -167,7 +239,8 @@ export class ContactsComponent implements OnInit {
 
   private mailParams(): string[] {
     const m = this.outreachMessage.trim();
-    const arr = [`subject=${encodeURIComponent('Safe Taxes ATL')}`];
+    const subject = this.outreachSubject.trim() || 'Safe Taxes ATL';
+    const arr = [`subject=${encodeURIComponent(subject)}`];
     if (m) {
       arr.push(`body=${encodeURIComponent(m)}`);
     }
@@ -187,6 +260,7 @@ export class ContactsComponent implements OnInit {
     }
     const params = [`bcc=${encodeURIComponent(emails.join(','))}`, ...this.mailParams()];
     window.location.href = `mailto:?${params.join('&')}`;
+    await this.logSends(list, 'email');
     await this.stamp(list);
   }
 
@@ -197,25 +271,28 @@ export class ContactsComponent implements OnInit {
       return;
     }
     window.location.href = `sms:${phones.join(',')}${this.smsBody()}`;
+    await this.logSends(list, 'sms');
     await this.stamp(list);
   }
 
-  emailOne(c: CrmContact): void {
-    if (!c.email) {
+  async emailOne(c: CrmContact): Promise<void> {
+    if (!c.email || this.wasEmailed(c.id)) {
       return;
     }
     const params = this.mailParams();
     window.location.href = `mailto:${c.email}?${params.join('&')}`;
-    void this.markOne(c);
+    await this.logSends([c], 'email');
+    await this.markOne(c);
   }
 
-  smsOne(c: CrmContact): void {
+  async smsOne(c: CrmContact): Promise<void> {
     const p = this.tel(c.phone);
-    if (!p) {
+    if (!p || this.wasSmsed(c.id)) {
       return;
     }
     window.location.href = `sms:${p}${this.smsBody()}`;
-    void this.markOne(c);
+    await this.logSends([c], 'sms');
+    await this.markOne(c);
   }
 
   async importExisting(): Promise<void> {

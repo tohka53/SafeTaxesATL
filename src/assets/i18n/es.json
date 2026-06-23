@@ -201,7 +201,20 @@
   "security": {
     "notice": "Sus datos (SSN, cuenta bancaria) se transmiten de forma segura y solo el personal autorizado puede verlos."
   },
-  "nav2": { "forms": "Formularios", "external": "Formularios externos", "contacts": "Contactos" },
+  "nav2": { "forms": "Formularios", "external": "Formularios externos", "contacts": "Contactos", "templates": "Plantillas" },
+  "tpl": {
+    "title": "Mensajes predeterminados",
+    "subtitle": "Crea plantillas de correo y SMS para reutilizar al contactar clientes.",
+    "new": "Nueva plantilla",
+    "name": "Nombre",
+    "type": "Tipo",
+    "email": "Correo",
+    "sms": "SMS",
+    "subject": "Asunto",
+    "body": "Mensaje",
+    "empty": "Aún no hay plantillas.",
+    "pick": "Usar plantilla"
+  },
   "contacts": {
     "title": "Contactos / Clientes",
     "subtitle": "Todos los clientes: selecciona algunos o todos, crea manualmente y registra la comunicación.",
@@ -235,6 +248,35 @@
     "received": "Recibido",
     "viewData": "Ver datos",
     "noData": "Aún no hay formularios externos."
+  },
+  "cse": {
+    "title": "Proceso de taxes",
+    "start": "Iniciar taxes",
+    "status": "Estado",
+    "started": "Taxes iniciados",
+    "in_process": "En proceso",
+    "finished": "Finalizado",
+    "request": "Solicitar documentos / datos",
+    "requestNote": "Nota para el cliente",
+    "requested": "Solicitado",
+    "save": "Guardar proceso",
+    "noCase": "Taxes no iniciados para este año.",
+    "finalDoc": "Tu documento final",
+    "year": "Año",
+    "saved": "Proceso actualizado."
+  },
+  "req": {
+    "w2": "W-2",
+    "f1099": "1099",
+    "id": "Identificación / Licencia",
+    "ssn_card": "Tarjeta de Seguro Social",
+    "f1095": "1095-A (seguro)",
+    "bank": "Información bancaria",
+    "dependents": "Documentos de dependientes",
+    "income_proof": "Comprobante de ingresos",
+    "prior_return": "Declaración del año anterior",
+    "intake_form": "Formulario de intake (llenar)",
+    "other": "Otro"
   },
   "pf": {
     "title": "Formulario de perfil del cliente",

@@ -47,6 +47,7 @@ export class UsPhoneDirective {
   onInput(): void {
     const formatted = formatUsPhone(this.el.nativeElement.value);
     this.el.nativeElement.value = formatted;
-    this.ngControl?.control?.setValue(formatted, { emitEvent: false });
+    // emit so ngModel / formControl bindings receive the formatted value
+    this.ngControl?.control?.setValue(formatted);
   }
 }

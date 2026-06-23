@@ -15,6 +15,14 @@ import {
 } from '@core/models/tax-form.model';
 import { TaxDocument } from '@core/models/document.model';
 import { findFormDef } from '@core/models/form-def.model';
+import { CaseService } from '@core/services/case.service';
+import {
+  CASE_STATUSES,
+  CaseStatus,
+  REQUEST_ITEMS,
+  TaxCase
+} from '@core/models/tax-case.model';
+import { decodeId } from '@core/utils/crypto-id';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -39,6 +47,15 @@ export class ClientDetailComponent implements OnInit {
   uploading = false;
   uploadOk = false;
 
+  readonly caseStatuses = CASE_STATUSES;
+  readonly requestItems = REQUEST_ITEMS;
+  cases: TaxCase[] = [];
+  caseYear = new Date().getFullYear();
+  caseStatus: CaseStatus = 'started';
+  caseReq = new Set<string>();
+  caseNote = '';
+  caseMsg = '';
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly auth: AuthService,
@@ -46,8 +63,65 @@ export class ClientDetailComponent implements OnInit {
     private readonly taxForms: TaxFormService,
     private readonly docs: DocumentService,
     private readonly pdf: PdfService,
+    private readonly caseService: CaseService,
     private readonly translate: TranslateService
   ) {}
+
+  // ----- Tax case (per-year process) -----
+  get selectedCase(): TaxCase | null {
+    return this.cases.find((c) => c.tax_year === Number(this.caseYear)) ?? null;
+  }
+  caseStatusLabel(s: CaseStatus): string {
+    return this.translate.instant('cse.' + s);
+  }
+  syncCaseEdit(): void {
+    const c = this.selectedCase;
+    this.caseStatus = c?.status ?? 'started';
+    this.caseReq = new Set(c?.requested ?? []);
+    this.caseNote = c?.request_note ?? '';
+  }
+  onCaseYearChange(): void {
+    this.syncCaseEdit();
+  }
+  isReq(item: string): boolean {
+    return this.caseReq.has(item);
+  }
+  toggleReq(item: string): void {
+    if (this.caseReq.has(item)) {
+      this.caseReq.delete(item);
+    } else {
+      this.caseReq.add(item);
+    }
+  }
+  async startCase(): Promise<void> {
+    this.caseMsg = '';
+    try {
+      await this.caseService.start(this.clientId, Number(this.caseYear));
+      this.cases = await this.caseService.listByUser(this.clientId);
+      this.syncCaseEdit();
+    } catch (e) {
+      this.caseMsg = String((e as { message?: string })?.message ?? e);
+    }
+  }
+  async saveCase(): Promise<void> {
+    const c = this.selectedCase;
+    if (!c?.id) {
+      return;
+    }
+    this.caseMsg = '';
+    try {
+      await this.caseService.save({
+        ...c,
+        status: this.caseStatus,
+        requested: [...this.caseReq],
+        request_note: this.caseNote || null
+      });
+      this.cases = await this.caseService.listByUser(this.clientId);
+      this.caseMsg = 'ok';
+    } catch (e) {
+      this.caseMsg = String((e as { message?: string })?.message ?? e);
+    }
+  }
 
   private get lang(): string {
     return this.translate.currentLang || 'en';
@@ -59,7 +133,7 @@ export class ClientDetailComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.clientId = this.route.snapshot.paramMap.get('id') ?? '';
+    this.clientId = decodeId(this.route.snapshot.paramMap.get('id'));
     const y = new Date().getFullYear();
     this.uploadYears = [y, y - 1, y - 2, y - 3];
     await this.reload();
@@ -80,6 +154,12 @@ export class ClientDetailComponent implements OnInit {
         .sort((a, b) => b - a);
       this.documents = documents;
       this.openYear = this.years[0] ?? null;
+      try {
+        this.cases = await this.caseService.listByUser(this.clientId);
+      } catch (e) {
+        console.warn('cases', e);
+      }
+      this.syncCaseEdit();
     } catch (e) {
       console.warn('client detail load', e);
     } finally {

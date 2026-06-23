@@ -201,7 +201,20 @@
   "security": {
     "notice": "Your data (SSN, bank account) is transmitted securely and only authorized staff can view it."
   },
-  "nav2": { "forms": "Forms", "external": "External forms", "contacts": "Contacts" },
+  "nav2": { "forms": "Forms", "external": "External forms", "contacts": "Contacts", "templates": "Templates" },
+  "tpl": {
+    "title": "Message templates",
+    "subtitle": "Create reusable email and SMS templates for contacting clients.",
+    "new": "New template",
+    "name": "Name",
+    "type": "Type",
+    "email": "Email",
+    "sms": "SMS",
+    "subject": "Subject",
+    "body": "Message",
+    "empty": "No templates yet.",
+    "pick": "Use template"
+  },
   "contacts": {
     "title": "Contacts / Clients",
     "subtitle": "All clients: select some or all, add manually, and log communication.",
@@ -235,6 +248,35 @@
     "received": "Received",
     "viewData": "View data",
     "noData": "No external forms yet."
+  },
+  "cse": {
+    "title": "Tax process",
+    "start": "Start taxes",
+    "status": "Status",
+    "started": "Taxes started",
+    "in_process": "In process",
+    "finished": "Finished",
+    "request": "Request documents / data",
+    "requestNote": "Note for the client",
+    "requested": "Requested",
+    "save": "Save process",
+    "noCase": "Taxes not started for this year.",
+    "finalDoc": "Your final document",
+    "year": "Year",
+    "saved": "Process updated."
+  },
+  "req": {
+    "w2": "W-2",
+    "f1099": "1099",
+    "id": "ID / Driver license",
+    "ssn_card": "Social Security card",
+    "f1095": "1095-A (insurance)",
+    "bank": "Bank information",
+    "dependents": "Dependents documents",
+    "income_proof": "Proof of income",
+    "prior_return": "Prior year return",
+    "intake_form": "Intake form (fill out)",
+    "other": "Other"
   },
   "pf": {
     "title": "Client Profile Form",

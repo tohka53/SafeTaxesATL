@@ -38,6 +38,10 @@
              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
             <span>📇</span> {{ 'nav2.contacts' | translate }}
           </a>
+          <a routerLink="/preparer/templates" routerLinkActive="bg-brand-50 text-brand-700"
+             class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+            <span>📝</span> {{ 'nav2.templates' | translate }}
+          </a>
           <a *ngIf="isAdmin(p.role)" routerLink="/preparer/leads" routerLinkActive="bg-brand-50 text-brand-700"
              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
             <span>📥</span> {{ 'nav2.external' | translate }}

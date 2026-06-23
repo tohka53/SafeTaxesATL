@@ -1,0 +1,59 @@
+<section class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+  <header class="mb-6 flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-extrabold text-gray-900">{{ 'tpl.title' | translate }}</h1>
+      <p class="mt-1 text-gray-600">{{ 'tpl.subtitle' | translate }}</p>
+    </div>
+    <button type="button" (click)="newTemplate()" class="btn-primary">+ {{ 'tpl.new' | translate }}</button>
+  </header>
+
+  <!-- Form -->
+  <div *ngIf="showForm" class="card mb-6">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div><label class="label">{{ 'tpl.name' | translate }}</label><input class="input" type="text" [(ngModel)]="model.name" /></div>
+      <div>
+        <label class="label">{{ 'tpl.type' | translate }}</label>
+        <select class="input" [(ngModel)]="model.type">
+          <option value="email">{{ 'tpl.email' | translate }}</option>
+          <option value="sms">{{ 'tpl.sms' | translate }}</option>
+        </select>
+      </div>
+      <div *ngIf="model.type === 'email'" class="sm:col-span-2"><label class="label">{{ 'tpl.subject' | translate }}</label><input class="input" type="text" [(ngModel)]="model.subject" /></div>
+      <div class="sm:col-span-2"><label class="label">{{ 'tpl.body' | translate }}</label><textarea class="input" rows="4" [(ngModel)]="model.body"></textarea></div>
+    </div>
+    <p *ngIf="error" class="mt-2 rounded-lg border border-red-200 bg-red-50 p-2 text-sm text-red-700">{{ error }}</p>
+    <div class="mt-4 flex justify-end gap-2">
+      <button type="button" (click)="cancel()" class="btn-secondary">{{ 'common.cancel' | translate }}</button>
+      <button type="button" (click)="save()" class="btn-primary" [disabled]="saving">{{ saving ? ('common.saving' | translate) : ('common.save' | translate) }}</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-gray-500">{{ 'common.loading' | translate }}</div>
+  <div *ngIf="!loading && !templates.length" class="card text-center text-gray-500">{{ 'tpl.empty' | translate }}</div>
+
+  <div *ngIf="!loading && templates.length" class="overflow-hidden rounded-xl border border-gray-200 bg-white">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
+        <tr>
+          <th class="px-4 py-3">{{ 'tpl.name' | translate }}</th>
+          <th class="px-4 py-3">{{ 'tpl.type' | translate }}</th>
+          <th class="px-4 py-3">{{ 'tpl.body' | translate }}</th>
+          <th class="px-4 py-3 text-right">{{ 'common.actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <tr *ngFor="let t of templates" class="hover:bg-gray-50">
+          <td class="px-4 py-3 font-medium text-gray-900">{{ t.name }}</td>
+          <td class="px-4 py-3"><span class="badge" [ngClass]="t.type === 'email' ? 'bg-brand-100 text-brand-700' : 'bg-accent-500/20 text-accent-700'">{{ (t.type === 'email' ? 'tpl.email' : 'tpl.sms') | translate }}</span></td>
+          <td class="px-4 py-3 max-w-md truncate text-gray-600">{{ t.body }}</td>
+          <td class="px-4 py-3">
+            <div class="flex justify-end gap-2">
+              <button type="button" (click)="edit(t)" class="btn-secondary !px-3 !py-1.5 text-xs">{{ 'common.edit' | translate }}</button>
+              <button type="button" (click)="remove(t)" class="btn-secondary !px-3 !py-1.5 text-xs text-red-600">{{ 'common.delete' | translate }}</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
