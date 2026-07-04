@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { TaxForm } from '@core/models/tax-form.model';
 import { FormDef } from '@core/models/form-def.model';
+import { environment } from '@env/environment';
 
 /**
  * Builds A4 / "desktop width" PDFs so the same file looks correct when opened
@@ -24,7 +25,7 @@ export class PdfService {
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(20);
-    doc.text('Safe Taxes ATL', 40, 34);
+    doc.text(environment.brandName, 40, 34);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
     doc.text(subtitle, 40, 54);
@@ -37,7 +38,7 @@ export class PdfService {
     doc.setFontSize(8);
     doc.setTextColor(120, 120, 120);
     doc.text(
-      `Safe Taxes ATL — ${new Date().toLocaleString()}`,
+      `${environment.brandName} — ${new Date().toLocaleString()}`,
       40,
       h - 24
     );
@@ -100,7 +101,7 @@ export class PdfService {
   downloadTaxForm(form: Partial<TaxForm>, filename?: string): void {
     const name =
       filename ??
-      `SafeTaxesATL_${form.tax_year ?? 'form'}_${(form.full_name ?? 'cliente')
+      `${environment.brandSlug}_${form.tax_year ?? 'form'}_${(form.full_name ?? 'cliente')
         .replace(/\s+/g, '_')
         .toLowerCase()}.pdf`;
     this.generateTaxFormPdf(form).save(name);
@@ -208,7 +209,7 @@ export class PdfService {
       .replace(/\s+/g, '_')
       .toLowerCase();
     this.generateProfilePdf(raw).save(
-      `SafeTaxesATL_${raw?.['tax_year'] ?? 'form'}_${name}.pdf`
+      `${environment.brandSlug}_${raw?.['tax_year'] ?? 'form'}_${name}.pdf`
     );
   }
 
@@ -247,7 +248,7 @@ export class PdfService {
 
   downloadGeneric(def: FormDef, values: Record<string, any>, lang: string): void {
     this.generateGenericPdf(def, values, lang).save(
-      `SafeTaxesATL_${def.id}_${values?.['taxYear'] ?? ''}.pdf`
+      `${environment.brandSlug}_${def.id}_${values?.['taxYear'] ?? ''}.pdf`
     );
   }
 
@@ -283,6 +284,6 @@ export class PdfService {
       margin: { left: 40, right: 40 }
     });
     this.footer(doc);
-    doc.save(`SafeTaxesATL_contacto_${Date.now()}.pdf`);
+    doc.save(`${environment.brandSlug}_contacto_${Date.now()}.pdf`);
   }
 }

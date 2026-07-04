@@ -4,9 +4,10 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { AuthService } from '@core/services/auth.service';
 import { TaxFormService } from '@core/services/tax-form.service';
+import { FormDefService } from '@core/services/form-def.service';
 import { PdfService } from '@core/services/pdf.service';
 import { FormStatus, TaxForm } from '@core/models/tax-form.model';
-import { FORM_DEFINITIONS, FormDef, findFormDef } from '@core/models/form-def.model';
+import { CLIENT_PROFILE_FORM_DEF, FormDef } from '@core/models/form-def.model';
 import { encodeId } from '@core/utils/crypto-id';
 
 @Component({
@@ -15,7 +16,8 @@ import { encodeId } from '@core/utils/crypto-id';
 })
 export class FormsComponent implements OnInit {
   readonly FormStatus = FormStatus;
-  readonly defs: FormDef[] = FORM_DEFINITIONS;
+  /** client_profile (hardcoded tile) + whatever's active in form_definitions. */
+  defs: FormDef[] = [CLIENT_PROFILE_FORM_DEF];
 
   loading = true;
   grouped: Record<number, TaxForm[]> = {};
@@ -24,6 +26,7 @@ export class FormsComponent implements OnInit {
   constructor(
     private readonly auth: AuthService,
     private readonly taxForms: TaxFormService,
+    private readonly formDefs: FormDefService,
     private readonly pdf: PdfService,
     private readonly router: Router,
     public readonly translate: TranslateService
@@ -36,7 +39,12 @@ export class FormsComponent implements OnInit {
       return;
     }
     try {
-      this.grouped = await this.taxForms.listByUserGroupedByYear(uid);
+      const [grouped, dynamicDefs] = await Promise.all([
+        this.taxForms.listByUserGroupedByYear(uid),
+        this.formDefs.list()
+      ]);
+      this.grouped = grouped;
+      this.defs = [CLIENT_PROFILE_FORM_DEF, ...dynamicDefs];
       this.years = Object.keys(this.grouped)
         .map(Number)
         .sort((a, b) => b - a);
@@ -74,7 +82,7 @@ export class FormsComponent implements OnInit {
       this.pdf.downloadProfile(form.extra ?? {});
       return;
     }
-    const d = findFormDef(type);
+    const d = this.defs.find((x) => x.id === type);
     if (d) {
       this.pdf.downloadGeneric(d, form.extra ?? {}, this.lang);
     }

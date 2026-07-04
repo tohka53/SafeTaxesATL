@@ -4,14 +4,18 @@
 //  Uses Resend (https://resend.com). The HTML body uses a fixed 600px table
 //  so it renders well on desktop email clients.
 //
+//  MULTI-LOCATION: set the BRAND_NAME secret per deployment/location — it is
+//  the only brand text baked into this function.
+//
 //  Deploy:
 //    supabase functions deploy send-tax-email --no-verify-jwt
-//    supabase secrets set RESEND_API_KEY=re_xxx MAIL_FROM="Safe Taxes ATL <noreply@yourdomain.com>"
+//    supabase secrets set RESEND_API_KEY=re_xxx MAIL_FROM="Your Business <noreply@yourdomain.com>" BRAND_NAME="Your Business"
 // =====================================================================
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
-const MAIL_FROM = Deno.env.get('MAIL_FROM') ?? 'Safe Taxes ATL <onboarding@resend.dev>';
+const BRAND_NAME = Deno.env.get('BRAND_NAME') ?? 'Tax CRM';
+const MAIL_FROM = Deno.env.get('MAIL_FROM') ?? `${BRAND_NAME} <onboarding@resend.dev>`;
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -47,7 +51,7 @@ function buildHtml(form: Record<string, unknown> | undefined, contact: Record<st
       <tr><td align="center">
         <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden">
           <tr><td style="background:#2563eb;padding:24px 32px;color:#fff">
-            <h1 style="margin:0;font-size:22px">Safe Taxes ATL</h1>
+            <h1 style="margin:0;font-size:22px">${BRAND_NAME}</h1>
             <p style="margin:4px 0 0;font-size:13px;color:#dbeafe">Nuevo formulario recibido</p>
           </td></tr>
           <tr><td style="padding:24px 32px">
@@ -56,7 +60,7 @@ function buildHtml(form: Record<string, unknown> | undefined, contact: Record<st
             </table>
             <p style="margin:24px 0 0;font-size:12px;color:#6b7280">El PDF adjunto contiene la información completa del formulario.</p>
           </td></tr>
-          <tr><td style="padding:16px 32px;background:#f9fafb;color:#9ca3af;font-size:11px">© Safe Taxes ATL</td></tr>
+          <tr><td style="padding:16px 32px;background:#f9fafb;color:#9ca3af;font-size:11px">© ${BRAND_NAME}</td></tr>
         </table>
       </td></tr>
     </table>
@@ -81,14 +85,14 @@ serve(async (req: Request) => {
     const payload: Record<string, unknown> = {
       from: MAIL_FROM,
       to: [to],
-      subject: subject ?? 'Safe Taxes ATL',
+      subject: subject ?? BRAND_NAME,
       html: buildHtml(form, contact)
     };
     if (cc) payload['cc'] = [cc];
     if (replyTo) payload['reply_to'] = replyTo;
     if (pdfBase64) {
       payload['attachments'] = [
-        { filename: pdfName ?? 'safe-taxes-atl.pdf', content: pdfBase64 }
+        { filename: pdfName ?? 'tax-form.pdf', content: pdfBase64 }
       ];
     }
 

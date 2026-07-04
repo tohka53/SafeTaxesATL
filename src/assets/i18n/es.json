@@ -1,7 +1,6 @@
 {
   "app": {
-    "name": "Safe Taxes ATL",
-    "tagline": "Preparación de impuestos confiable en Atlanta"
+    "tagline": "Preparación de impuestos confiable"
   },
   "nav": {
     "home": "Inicio",
@@ -201,7 +200,39 @@
   "security": {
     "notice": "Sus datos (SSN, cuenta bancaria) se transmiten de forma segura y solo el personal autorizado puede verlos."
   },
-  "nav2": { "forms": "Formularios", "external": "Formularios externos", "contacts": "Contactos", "templates": "Plantillas" },
+  "nav2": { "forms": "Formularios", "external": "Formularios externos", "contacts": "Contactos", "templates": "Plantillas", "formBuilder": "Constructor de formularios" },
+  "fb": {
+    "title": "Constructor de formularios",
+    "subtitle": "Agrega, edita o quita formularios dinámicos y sus campos — sin desplegar código.",
+    "new": "Nuevo formulario",
+    "seed": "Cargar formularios de ejemplo",
+    "empty": "Aún no hay formularios dinámicos.",
+    "form": "Formulario",
+    "fieldsCol": "Campos",
+    "sections": "secciones",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "activate": "Activar",
+    "deactivate": "Desactivar",
+    "id": "ID (único)",
+    "idHint": "Solo minúsculas, números y guion bajo. No se puede cambiar después de crear el formulario.",
+    "icon": "Ícono (emoji)",
+    "titleEs": "Título (español)",
+    "titleEn": "Título (inglés)",
+    "order": "Orden de visualización",
+    "sectionEs": "Título de sección (español)",
+    "sectionEn": "Título de sección (inglés)",
+    "fieldKey": "Clave del campo",
+    "fieldEs": "Etiqueta (español)",
+    "fieldEn": "Etiqueta (inglés)",
+    "fullWidth": "Ancho completo",
+    "addSection": "Agregar sección",
+    "addField": "Agregar campo",
+    "addOption": "Agregar opción",
+    "optionValue": "Valor",
+    "optionEs": "Opción (español)",
+    "optionEn": "Opción (inglés)"
+  },
   "tpl": {
     "title": "Mensajes predeterminados",
     "subtitle": "Crea plantillas de correo y SMS para reutilizar al contactar clientes.",
@@ -328,7 +359,7 @@
     "haveCard": "¿Tiene la tarjeta del seguro consigo?",
     "throughEmployer": "¿Comprado a través del empleador?",
     "customerSignature": "Firma del cliente", "spouseSignature": "Firma del cónyuge", "date": "Fecha",
-    "legal": "Al firmar este formulario certifico que toda la información proporcionada a Safe Taxes ATL es verdadera y correcta a mi leal saber y entender. Entiendo que cualquier evaluación, multa o auditoría del IRS por omisiones o información errónea es mi responsabilidad, y acepto pagar la preparación de documentos al momento del servicio.",
+    "legal": "Al firmar este formulario certifico que toda la información proporcionada a {{brand}} es verdadera y correcta a mi leal saber y entender. Entiendo que cualquier evaluación, multa o auditoría del IRS por omisiones o información errónea es mi responsabilidad, y acepto pagar la preparación de documentos al momento del servicio.",
     "saved": "Formulario guardado correctamente."
   },
   "footer": {

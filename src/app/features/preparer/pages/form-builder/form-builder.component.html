@@ -1,0 +1,156 @@
+<section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+  <header class="mb-6 flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-extrabold text-gray-900">{{ 'fb.title' | translate }}</h1>
+      <p class="mt-1 text-gray-600">{{ 'fb.subtitle' | translate }}</p>
+    </div>
+    <div class="flex flex-none gap-2">
+      <button type="button" (click)="seedDefaults()" class="btn-secondary" [disabled]="seeding">
+        {{ seeding ? ('common.loading' | translate) : ('fb.seed' | translate) }}
+      </button>
+      <button type="button" (click)="newDef()" class="btn-primary">+ {{ 'fb.new' | translate }}</button>
+    </div>
+  </header>
+
+  <p *ngIf="listNotice" class="mb-4 rounded-lg border border-green-200 bg-green-50 p-2 text-sm text-green-700">{{ listNotice }}</p>
+  <p *ngIf="listError" class="mb-4 rounded-lg border border-red-200 bg-red-50 p-2 text-sm text-red-700">{{ listError }}</p>
+
+  <div *ngIf="loading" class="text-gray-500">{{ 'common.loading' | translate }}</div>
+  <div *ngIf="!loading && !defs.length" class="card mb-10 text-center text-gray-500">
+    <p class="mb-4">{{ 'fb.empty' | translate }}</p>
+    <button type="button" (click)="seedDefaults()" class="btn-primary" [disabled]="seeding">
+      {{ seeding ? ('common.loading' | translate) : ('fb.seed' | translate) }}
+    </button>
+  </div>
+
+  <div *ngIf="!loading && defs.length" class="mb-10 overflow-hidden rounded-xl border border-gray-200 bg-white">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
+        <tr>
+          <th class="px-4 py-3">{{ 'fb.form' | translate }}</th>
+          <th class="px-4 py-3">{{ 'fb.fieldsCol' | translate }}</th>
+          <th class="px-4 py-3">{{ 'common.status' | translate }}</th>
+          <th class="px-4 py-3 text-right">{{ 'common.actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <tr *ngFor="let d of defs" class="hover:bg-gray-50">
+          <td class="px-4 py-3">
+            <span class="mr-2">{{ d.icon }}</span>
+            <span class="font-medium text-gray-900">{{ label(d) }}</span>
+            <span class="ml-1 text-xs text-gray-400">({{ d.id }})</span>
+          </td>
+          <td class="px-4 py-3 text-gray-600">{{ fieldCount(d) }} · {{ d.sections.length }} {{ 'fb.sections' | translate }}</td>
+          <td class="px-4 py-3">
+            <span class="badge" [ngClass]="d.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'">
+              {{ (d.is_active ? 'fb.active' : 'fb.inactive') | translate }}
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex flex-wrap justify-end gap-2">
+              <button type="button" (click)="edit(d)" class="btn-secondary !px-3 !py-1.5 text-xs">{{ 'common.edit' | translate }}</button>
+              <button type="button" (click)="toggleActive(d)" class="btn-secondary !px-3 !py-1.5 text-xs">
+                {{ (d.is_active ? 'fb.deactivate' : 'fb.activate') | translate }}
+              </button>
+              <button type="button" (click)="remove(d)" class="btn-secondary !px-3 !py-1.5 text-xs text-red-600">{{ 'common.delete' | translate }}</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Editor -->
+  <div *ngIf="showEditor" class="card space-y-6">
+    <h2 class="text-lg font-bold text-gray-900">{{ isNew ? ('fb.new' | translate) : ('common.edit' | translate) }}</h2>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div>
+        <label class="label">{{ 'fb.id' | translate }}</label>
+        <input class="input" type="text" [ngModel]="model.id" (ngModelChange)="onIdInput($event)" [disabled]="!isNew" placeholder="schedule_c" />
+        <p class="mt-1 text-xs text-gray-400">{{ 'fb.idHint' | translate }}</p>
+      </div>
+      <div>
+        <label class="label">{{ 'fb.icon' | translate }}</label>
+        <input class="input" type="text" [(ngModel)]="model.icon" />
+      </div>
+      <div>
+        <label class="label">{{ 'fb.titleEs' | translate }}</label>
+        <input class="input" type="text" [(ngModel)]="model.es" />
+      </div>
+      <div>
+        <label class="label">{{ 'fb.titleEn' | translate }}</label>
+        <input class="input" type="text" [(ngModel)]="model.en" />
+      </div>
+      <div class="flex items-center gap-2 pt-6">
+        <input id="fb_active" class="h-4 w-4" type="checkbox" [(ngModel)]="model.is_active" />
+        <label for="fb_active" class="text-sm text-gray-700">{{ 'fb.active' | translate }}</label>
+      </div>
+      <div>
+        <label class="label">{{ 'fb.order' | translate }}</label>
+        <input class="input" type="number" [(ngModel)]="model.sort_order" />
+      </div>
+    </div>
+
+    <!-- Sections -->
+    <div class="space-y-4">
+      <div *ngFor="let section of model.sections; let si = index" class="rounded-lg border border-gray-200 p-4">
+        <div class="mb-3 flex items-start justify-between gap-2">
+          <div class="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
+            <input class="input" type="text" [(ngModel)]="section.es" [placeholder]="'fb.sectionEs' | translate" />
+            <input class="input" type="text" [(ngModel)]="section.en" [placeholder]="'fb.sectionEn' | translate" />
+          </div>
+          <div class="flex flex-none gap-1">
+            <button type="button" (click)="moveSection(si, -1)" class="btn-secondary !px-2 !py-1.5 text-xs" [disabled]="si === 0">↑</button>
+            <button type="button" (click)="moveSection(si, 1)" class="btn-secondary !px-2 !py-1.5 text-xs" [disabled]="si === model.sections.length - 1">↓</button>
+            <button type="button" (click)="removeSection(si)" class="btn-secondary !px-2 !py-1.5 text-xs text-red-600">{{ 'common.delete' | translate }}</button>
+          </div>
+        </div>
+
+        <!-- Fields -->
+        <div class="space-y-2">
+          <div *ngFor="let fld of section.fields; let fi = index" class="rounded-md bg-gray-50 p-3">
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-6">
+              <input class="input sm:col-span-1" type="text" [ngModel]="fld.name" (ngModelChange)="onFieldNameInput(fld, $event)" [placeholder]="'fb.fieldKey' | translate" />
+              <input class="input sm:col-span-1" type="text" [(ngModel)]="fld.es" [placeholder]="'fb.fieldEs' | translate" />
+              <input class="input sm:col-span-1" type="text" [(ngModel)]="fld.en" [placeholder]="'fb.fieldEn' | translate" />
+              <select class="input sm:col-span-1" [(ngModel)]="fld.type">
+                <option *ngFor="let t of fieldTypes" [value]="t">{{ t }}</option>
+              </select>
+              <label class="flex items-center gap-1 text-xs text-gray-600 sm:col-span-1">
+                <input type="checkbox" [(ngModel)]="fld.full" /> {{ 'fb.fullWidth' | translate }}
+              </label>
+              <div class="flex items-center gap-1 sm:col-span-1 sm:justify-end">
+                <button type="button" (click)="moveField(section, fi, -1)" class="btn-secondary !px-2 !py-1 text-xs" [disabled]="fi === 0">↑</button>
+                <button type="button" (click)="moveField(section, fi, 1)" class="btn-secondary !px-2 !py-1 text-xs" [disabled]="fi === section.fields.length - 1">↓</button>
+                <button type="button" (click)="removeField(section, fi)" class="btn-secondary !px-2 !py-1 text-xs text-red-600">✕</button>
+              </div>
+            </div>
+
+            <!-- Options editor (only for type=select) -->
+            <div *ngIf="fld.type === 'select'" class="mt-2 space-y-1 border-t border-gray-200 pt-2">
+              <div *ngFor="let opt of fld.options; let oi = index" class="grid grid-cols-1 gap-2 sm:grid-cols-4">
+                <input class="input" type="text" [(ngModel)]="opt.value" [placeholder]="'fb.optionValue' | translate" />
+                <input class="input" type="text" [(ngModel)]="opt.es" [placeholder]="'fb.optionEs' | translate" />
+                <input class="input" type="text" [(ngModel)]="opt.en" [placeholder]="'fb.optionEn' | translate" />
+                <button type="button" (click)="removeOption(fld, oi)" class="btn-secondary !px-2 !py-1 justify-self-start text-xs text-red-600">✕</button>
+              </div>
+              <button type="button" (click)="addOption(fld)" class="btn-secondary !px-3 !py-1 text-xs">+ {{ 'fb.addOption' | translate }}</button>
+            </div>
+          </div>
+
+          <button type="button" (click)="addField(section)" class="btn-secondary !px-3 !py-1.5 text-xs">+ {{ 'fb.addField' | translate }}</button>
+        </div>
+      </div>
+
+      <button type="button" (click)="addSection()" class="btn-secondary">+ {{ 'fb.addSection' | translate }}</button>
+    </div>
+
+    <p *ngIf="error" class="rounded-lg border border-red-200 bg-red-50 p-2 text-sm text-red-700">{{ error }}</p>
+
+    <div class="flex justify-end gap-2">
+      <button type="button" (click)="cancel()" class="btn-secondary">{{ 'common.cancel' | translate }}</button>
+      <button type="button" (click)="save()" class="btn-primary" [disabled]="!canSave">{{ saving ? ('common.saving' | translate) : ('common.save' | translate) }}</button>
+    </div>
+  </div>
+</section>

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '@core/services/auth.service';
 import { UserRole } from '@core/models/user-role.enum';
+import { environment } from '@env/environment';
 
 /** Authenticated CRM layout: left sidebar + topbar + routed content. */
 @Component({
@@ -12,6 +13,8 @@ import { UserRole } from '@core/models/user-role.enum';
 export class ShellComponent {
   readonly UserRole = UserRole;
   readonly year = new Date().getFullYear();
+  readonly brandName = environment.brandName;
+  readonly brandInitials = environment.brandInitials;
   sidebarOpen = false;
 
   constructor(

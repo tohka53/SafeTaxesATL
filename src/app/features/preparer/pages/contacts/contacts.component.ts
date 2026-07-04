@@ -6,6 +6,7 @@ import { MessageLogService } from '@core/services/message-log.service';
 import { CrmContact } from '@core/models/contact.model';
 import { MessageTemplate } from '@core/models/message-template.model';
 import { usPhoneE164 } from '@shared/directives/us-phone.directive';
+import { environment } from '@env/environment';
 
 @Component({
   selector: 'app-preparer-contacts',
@@ -239,7 +240,7 @@ export class ContactsComponent implements OnInit {
 
   private mailParams(): string[] {
     const m = this.outreachMessage.trim();
-    const subject = this.outreachSubject.trim() || 'Safe Taxes ATL';
+    const subject = this.outreachSubject.trim() || environment.brandName;
     const arr = [`subject=${encodeURIComponent(subject)}`];
     if (m) {
       arr.push(`body=${encodeURIComponent(m)}`);

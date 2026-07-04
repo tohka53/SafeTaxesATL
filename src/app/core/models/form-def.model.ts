@@ -1,7 +1,16 @@
 /**
- * Config-driven form definitions. Each form type is described here and rendered
- * by DynamicFormComponent, so adding/adjusting a form is a data change — no new
- * component. Ported from the QualiTech forms (rebranded Safe Taxes ATL).
+ * Config-driven form definitions. Each form type is described by sections of
+ * fields and rendered by DynamicFormComponent, so adding/adjusting a form is
+ * a data change — no new component.
+ *
+ * The 6 default form types below (`DEFAULT_FORM_DEFINITIONS`) are seed data
+ * only, used to populate the `form_definitions` Supabase table on first
+ * install (see supabase/migration-form-definitions.sql). At runtime the app
+ * NEVER reads this constant — it reads from Supabase via FormDefService
+ * (src/app/core/services/form-def.service.ts), so preparer/admin can add,
+ * edit or remove forms and fields from the Form Builder UI without a code
+ * deploy. This constant only documents the original shape / acts as a
+ * reference if you ever need to re-run the seed migration.
  */
 export type FieldType =
   | 'text'
@@ -37,306 +46,910 @@ export interface FormDef {
   es: string;
   en: string;
   icon: string;
-  /** true → rendered by the dedicated ClientProfileFormComponent. */
+  /** true → rendered by the dedicated ClientProfileFormComponent instead of DynamicFormComponent. */
   custom?: boolean;
+  /** Hidden from "start a new form" pickers when false, but existing submissions still render. */
+  is_active?: boolean;
+  sort_order?: number;
   sections: SectionDef[];
 }
 
-const f = (
-  name: string,
-  es: string,
-  en: string,
-  type: FieldType = 'text',
-  full = false
-): FieldDef => ({ name, es, en, type, full });
+/**
+ * The rich "Client Profile" intake form is intentionally NOT in
+ * form_definitions / the Form Builder — it's rendered by the dedicated
+ * ClientProfileFormComponent (nested groups, dependents array, signatures,
+ * its own PDF layout) instead of DynamicFormComponent, so its fields aren't
+ * add/remove-editable from the UI. This constant is how the rest of the app
+ * (the "start a new form" picker, form-type labels) still knows its id/title
+ * without a form_definitions row.
+ */
+export const CLIENT_PROFILE_FORM_DEF: FormDef = {
+  id: 'client_profile',
+  es: 'Formulario de perfil del cliente (Intake)',
+  en: 'Client Profile (Intake)',
+  icon: '🧾',
+  custom: true,
+  sections: []
+};
 
-const money = (name: string, es: string, en: string): FieldDef =>
-  f(name, es, en, 'money');
-
-const COMMON_ADDR: FieldDef[] = [
-  f('address', 'Dirección', 'Address', 'text', true),
-  f('state', 'Estado', 'State', 'state'),
-  f('city', 'Ciudad', 'City', 'city'),
-  f('zip', 'Código postal', 'ZIP')
-];
-
-export const FORM_DEFINITIONS: FormDef[] = [
+/** Seed only — see file header. Source of truth is the `form_definitions` table. */
+export const DEFAULT_FORM_DEFINITIONS: FormDef[] = [
   {
-    id: 'client_profile',
-    es: 'Formulario de perfil del cliente (Intake)',
-    en: 'Client Profile (Intake)',
-    icon: '🧾',
-    custom: true,
-    sections: []
-  },
-
-  {
-    id: 'schedule_c',
-    es: 'Schedule C — Trabajo por cuenta propia',
-    en: 'Schedule C — Self-employed',
-    icon: '💼',
-    sections: [
+    "id": "schedule_c",
+    "es": "Schedule C — Trabajo por cuenta propia",
+    "en": "Schedule C — Self-employed",
+    "icon": "💼",
+    "sections": [
       {
-        es: 'General',
-        en: 'General',
-        fields: [
-          f('taxYear', 'Año fiscal', 'Tax year', 'number'),
-          f('client', 'Cliente', 'Client'),
-          f('businessName', 'Nombre del negocio', 'Business name'),
-          f('taxId', 'Tax ID / EIN', 'Tax ID / EIN'),
-          f('email', 'Correo', 'Email', 'email'),
-          f('cellPhone', 'Celular', 'Cell phone', 'tel')
+        "es": "General",
+        "en": "General",
+        "fields": [
+          {
+            "name": "taxYear",
+            "es": "Año fiscal",
+            "en": "Tax year",
+            "type": "number"
+          },
+          {
+            "name": "client",
+            "es": "Cliente",
+            "en": "Client",
+            "type": "text"
+          },
+          {
+            "name": "businessName",
+            "es": "Nombre del negocio",
+            "en": "Business name",
+            "type": "text"
+          },
+          {
+            "name": "taxId",
+            "es": "Tax ID / EIN",
+            "en": "Tax ID / EIN",
+            "type": "text"
+          },
+          {
+            "name": "email",
+            "es": "Correo",
+            "en": "Email",
+            "type": "email"
+          },
+          {
+            "name": "cellPhone",
+            "es": "Celular",
+            "en": "Cell phone",
+            "type": "tel"
+          }
         ]
       },
       {
-        es: 'Vehículo',
-        en: 'Vehicle',
-        fields: [
-          f('vehicleName', 'Vehículo', 'Vehicle name'),
-          f('vehicleType', 'Tipo', 'Type'),
-          f('beginMileage', 'Millaje inicial', 'Begin mileage', 'number'),
-          f('endMileage', 'Millaje final', 'End mileage', 'number')
+        "es": "Vehículo",
+        "en": "Vehicle",
+        "fields": [
+          {
+            "name": "vehicleName",
+            "es": "Vehículo",
+            "en": "Vehicle name",
+            "type": "text"
+          },
+          {
+            "name": "vehicleType",
+            "es": "Tipo",
+            "en": "Type",
+            "type": "text"
+          },
+          {
+            "name": "beginMileage",
+            "es": "Millaje inicial",
+            "en": "Begin mileage",
+            "type": "number"
+          },
+          {
+            "name": "endMileage",
+            "es": "Millaje final",
+            "en": "End mileage",
+            "type": "number"
+          }
         ]
       },
       {
-        es: 'Ingresos',
-        en: 'Income',
-        fields: [money('grossReceipts', 'Ingresos brutos', 'Gross receipts')]
+        "es": "Ingresos",
+        "en": "Income",
+        "fields": [
+          {
+            "name": "grossReceipts",
+            "es": "Ingresos brutos",
+            "en": "Gross receipts",
+            "type": "money"
+          }
+        ]
       },
       {
-        es: 'Gastos',
-        en: 'Expenses',
-        fields: [
-          money('advertising', 'Publicidad', 'Advertising'),
-          money('carAndTruck', 'Auto y camión', 'Car and truck'),
-          money('commissions', 'Comisiones', 'Commissions'),
-          money('contractLabor', 'Mano de obra contratada', 'Contract labor'),
-          money('depreciation', 'Depreciación', 'Depreciation'),
-          money('insurance', 'Seguro', 'Insurance'),
-          money('legalProfessional', 'Servicios legales/prof.', 'Legal & professional'),
-          money('licenses', 'Licencias', 'Licenses'),
-          money('mealsEnt', 'Comidas', 'Meals'),
-          money('mortgageInterest', 'Interés hipotecario', 'Mortgage interest'),
-          money('officeExpense', 'Gastos de oficina', 'Office expense'),
-          money('otherInterest', 'Otros intereses', 'Other interest'),
-          money('rentLease', 'Renta/arrendamiento', 'Rent / lease'),
-          money('rentVehicles', 'Renta vehículos', 'Rent vehicles'),
-          money('rentOtherProperty', 'Renta otra propiedad', 'Rent other property'),
-          money('repairMaintenance', 'Reparación/mant.', 'Repair & maintenance'),
-          money('supplies', 'Suministros', 'Supplies'),
-          money('taxes', 'Impuestos', 'Taxes'),
-          money('telephone', 'Teléfono', 'Telephone'),
-          money('travel', 'Viajes', 'Travel'),
-          money('utilities', 'Servicios', 'Utilities'),
-          money('wages', 'Salarios', 'Wages'),
-          money('otherExpenses', 'Otros gastos', 'Other expenses'),
-          money('totalExpenses', 'Gastos totales', 'Total expenses')
+        "es": "Gastos",
+        "en": "Expenses",
+        "fields": [
+          {
+            "name": "advertising",
+            "es": "Publicidad",
+            "en": "Advertising",
+            "type": "money"
+          },
+          {
+            "name": "carAndTruck",
+            "es": "Auto y camión",
+            "en": "Car and truck",
+            "type": "money"
+          },
+          {
+            "name": "commissions",
+            "es": "Comisiones",
+            "en": "Commissions",
+            "type": "money"
+          },
+          {
+            "name": "contractLabor",
+            "es": "Mano de obra contratada",
+            "en": "Contract labor",
+            "type": "money"
+          },
+          {
+            "name": "depreciation",
+            "es": "Depreciación",
+            "en": "Depreciation",
+            "type": "money"
+          },
+          {
+            "name": "insurance",
+            "es": "Seguro",
+            "en": "Insurance",
+            "type": "money"
+          },
+          {
+            "name": "legalProfessional",
+            "es": "Servicios legales/prof.",
+            "en": "Legal & professional",
+            "type": "money"
+          },
+          {
+            "name": "licenses",
+            "es": "Licencias",
+            "en": "Licenses",
+            "type": "money"
+          },
+          {
+            "name": "mealsEnt",
+            "es": "Comidas",
+            "en": "Meals",
+            "type": "money"
+          },
+          {
+            "name": "mortgageInterest",
+            "es": "Interés hipotecario",
+            "en": "Mortgage interest",
+            "type": "money"
+          },
+          {
+            "name": "officeExpense",
+            "es": "Gastos de oficina",
+            "en": "Office expense",
+            "type": "money"
+          },
+          {
+            "name": "otherInterest",
+            "es": "Otros intereses",
+            "en": "Other interest",
+            "type": "money"
+          },
+          {
+            "name": "rentLease",
+            "es": "Renta/arrendamiento",
+            "en": "Rent / lease",
+            "type": "money"
+          },
+          {
+            "name": "rentVehicles",
+            "es": "Renta vehículos",
+            "en": "Rent vehicles",
+            "type": "money"
+          },
+          {
+            "name": "rentOtherProperty",
+            "es": "Renta otra propiedad",
+            "en": "Rent other property",
+            "type": "money"
+          },
+          {
+            "name": "repairMaintenance",
+            "es": "Reparación/mant.",
+            "en": "Repair & maintenance",
+            "type": "money"
+          },
+          {
+            "name": "supplies",
+            "es": "Suministros",
+            "en": "Supplies",
+            "type": "money"
+          },
+          {
+            "name": "taxes",
+            "es": "Impuestos",
+            "en": "Taxes",
+            "type": "money"
+          },
+          {
+            "name": "telephone",
+            "es": "Teléfono",
+            "en": "Telephone",
+            "type": "money"
+          },
+          {
+            "name": "travel",
+            "es": "Viajes",
+            "en": "Travel",
+            "type": "money"
+          },
+          {
+            "name": "utilities",
+            "es": "Servicios",
+            "en": "Utilities",
+            "type": "money"
+          },
+          {
+            "name": "wages",
+            "es": "Salarios",
+            "en": "Wages",
+            "type": "money"
+          },
+          {
+            "name": "otherExpenses",
+            "es": "Otros gastos",
+            "en": "Other expenses",
+            "type": "money"
+          },
+          {
+            "name": "totalExpenses",
+            "es": "Gastos totales",
+            "en": "Total expenses",
+            "type": "money"
+          }
         ]
       }
     ]
   },
-
   {
-    id: 'real_estate',
-    es: 'Propiedad de bienes raíces',
-    en: 'Real Estate Property',
-    icon: '🏚️',
-    sections: [
+    "id": "real_estate",
+    "es": "Propiedad de bienes raíces",
+    "en": "Real Estate Property",
+    "icon": "🏚️",
+    "sections": [
       {
-        es: 'Propiedad',
-        en: 'Property',
-        fields: [
-          f('taxYear', 'Año fiscal', 'Tax year', 'number'),
-          f('propertyAddress1', 'Dirección de la propiedad', 'Property address', 'text', true),
-          f('propertyAddress2', 'Dirección (2)', 'Property address 2', 'text', true),
-          money('originalCost', 'Costo original', 'Original cost'),
-          money('grossIncome', 'Ingreso bruto', 'Gross income'),
-          f('email', 'Correo', 'Email', 'email')
+        "es": "Propiedad",
+        "en": "Property",
+        "fields": [
+          {
+            "name": "taxYear",
+            "es": "Año fiscal",
+            "en": "Tax year",
+            "type": "number"
+          },
+          {
+            "name": "propertyAddress1",
+            "es": "Dirección de la propiedad",
+            "en": "Property address",
+            "type": "text",
+            "full": true
+          },
+          {
+            "name": "propertyAddress2",
+            "es": "Dirección (2)",
+            "en": "Property address 2",
+            "type": "text",
+            "full": true
+          },
+          {
+            "name": "originalCost",
+            "es": "Costo original",
+            "en": "Original cost",
+            "type": "money"
+          },
+          {
+            "name": "grossIncome",
+            "es": "Ingreso bruto",
+            "en": "Gross income",
+            "type": "money"
+          },
+          {
+            "name": "email",
+            "es": "Correo",
+            "en": "Email",
+            "type": "email"
+          }
         ]
       },
       {
-        es: 'Gastos',
-        en: 'Expenses',
-        fields: [
-          money('advertising', 'Publicidad', 'Advertising'),
-          money('autoTravel', 'Auto y viajes', 'Auto & travel'),
-          money('carpentry', 'Carpintería', 'Carpentry'),
-          money('cleaningMaintenance', 'Limpieza/mant.', 'Cleaning & maintenance'),
-          money('commissions', 'Comisiones', 'Commissions'),
-          money('condoFee', 'Cuota de condominio', 'Condo fee'),
-          money('contractorLabor', 'Mano de obra', 'Contractor labor'),
-          money('depreciation', 'Depreciación', 'Depreciation'),
-          money('electrical', 'Electricidad', 'Electrical'),
-          money('gas', 'Gas', 'Gas'),
-          money('heat', 'Calefacción', 'Heat'),
-          money('insurance', 'Seguro', 'Insurance'),
-          money('legalFees', 'Honorarios legales', 'Legal fees'),
-          money('managementFees', 'Administración', 'Management fees'),
-          money('mortgageInterest', 'Interés hipotecario', 'Mortgage interest'),
-          money('otherInterest', 'Otros intereses', 'Other interest'),
-          money('paintingDecorating', 'Pintura/decoración', 'Painting & decorating'),
-          money('plumbingHeating', 'Plomería/calefacción', 'Plumbing & heating'),
-          money('realEstateTaxes', 'Impuestos inmobiliarios', 'Real estate taxes'),
-          money('repair', 'Reparaciones', 'Repair'),
-          money('supplies', 'Suministros', 'Supplies'),
-          money('trashSnow', 'Basura/nieve', 'Trash & snow'),
-          money('utilities', 'Servicios', 'Utilities'),
-          money('waterSewer', 'Agua/alcantarillado', 'Water & sewer'),
-          money('otherExpense', 'Otros gastos', 'Other expense'),
-          money('totalExpenses', 'Gastos totales', 'Total expenses'),
-          money('carryforwardLosses', 'Pérdidas acumuladas', 'Carryforward losses')
+        "es": "Gastos",
+        "en": "Expenses",
+        "fields": [
+          {
+            "name": "advertising",
+            "es": "Publicidad",
+            "en": "Advertising",
+            "type": "money"
+          },
+          {
+            "name": "autoTravel",
+            "es": "Auto y viajes",
+            "en": "Auto & travel",
+            "type": "money"
+          },
+          {
+            "name": "carpentry",
+            "es": "Carpintería",
+            "en": "Carpentry",
+            "type": "money"
+          },
+          {
+            "name": "cleaningMaintenance",
+            "es": "Limpieza/mant.",
+            "en": "Cleaning & maintenance",
+            "type": "money"
+          },
+          {
+            "name": "commissions",
+            "es": "Comisiones",
+            "en": "Commissions",
+            "type": "money"
+          },
+          {
+            "name": "condoFee",
+            "es": "Cuota de condominio",
+            "en": "Condo fee",
+            "type": "money"
+          },
+          {
+            "name": "contractorLabor",
+            "es": "Mano de obra",
+            "en": "Contractor labor",
+            "type": "money"
+          },
+          {
+            "name": "depreciation",
+            "es": "Depreciación",
+            "en": "Depreciation",
+            "type": "money"
+          },
+          {
+            "name": "electrical",
+            "es": "Electricidad",
+            "en": "Electrical",
+            "type": "money"
+          },
+          {
+            "name": "gas",
+            "es": "Gas",
+            "en": "Gas",
+            "type": "money"
+          },
+          {
+            "name": "heat",
+            "es": "Calefacción",
+            "en": "Heat",
+            "type": "money"
+          },
+          {
+            "name": "insurance",
+            "es": "Seguro",
+            "en": "Insurance",
+            "type": "money"
+          },
+          {
+            "name": "legalFees",
+            "es": "Honorarios legales",
+            "en": "Legal fees",
+            "type": "money"
+          },
+          {
+            "name": "managementFees",
+            "es": "Administración",
+            "en": "Management fees",
+            "type": "money"
+          },
+          {
+            "name": "mortgageInterest",
+            "es": "Interés hipotecario",
+            "en": "Mortgage interest",
+            "type": "money"
+          },
+          {
+            "name": "otherInterest",
+            "es": "Otros intereses",
+            "en": "Other interest",
+            "type": "money"
+          },
+          {
+            "name": "paintingDecorating",
+            "es": "Pintura/decoración",
+            "en": "Painting & decorating",
+            "type": "money"
+          },
+          {
+            "name": "plumbingHeating",
+            "es": "Plomería/calefacción",
+            "en": "Plumbing & heating",
+            "type": "money"
+          },
+          {
+            "name": "realEstateTaxes",
+            "es": "Impuestos inmobiliarios",
+            "en": "Real estate taxes",
+            "type": "money"
+          },
+          {
+            "name": "repair",
+            "es": "Reparaciones",
+            "en": "Repair",
+            "type": "money"
+          },
+          {
+            "name": "supplies",
+            "es": "Suministros",
+            "en": "Supplies",
+            "type": "money"
+          },
+          {
+            "name": "trashSnow",
+            "es": "Basura/nieve",
+            "en": "Trash & snow",
+            "type": "money"
+          },
+          {
+            "name": "utilities",
+            "es": "Servicios",
+            "en": "Utilities",
+            "type": "money"
+          },
+          {
+            "name": "waterSewer",
+            "es": "Agua/alcantarillado",
+            "en": "Water & sewer",
+            "type": "money"
+          },
+          {
+            "name": "otherExpense",
+            "es": "Otros gastos",
+            "en": "Other expense",
+            "type": "money"
+          },
+          {
+            "name": "totalExpenses",
+            "es": "Gastos totales",
+            "en": "Total expenses",
+            "type": "money"
+          },
+          {
+            "name": "carryforwardLosses",
+            "es": "Pérdidas acumuladas",
+            "en": "Carryforward losses",
+            "type": "money"
+          }
         ]
       }
     ]
   },
-
   {
-    id: 'business_intake',
-    es: 'Registro de negocio (Business Intake)',
-    en: 'Business Intake',
-    icon: '🏢',
-    sections: [
+    "id": "business_intake",
+    "es": "Registro de negocio (Business Intake)",
+    "en": "Business Intake",
+    "icon": "🏢",
+    "sections": [
       {
-        es: 'Negocio',
-        en: 'Business',
-        fields: [
-          f('businessName', 'Nombre del negocio', 'Business name'),
-          f('businessFid', 'FID / EIN', 'FID / EIN'),
-          f('cid', 'CID', 'CID'),
-          f('businessAddress', 'Dirección', 'Address', 'text', true),
-          f('state', 'Estado', 'State', 'state'),
-          f('city', 'Ciudad', 'City', 'city'),
-          f('zip', 'Código postal', 'ZIP'),
-          f('website', 'Sitio web', 'Website')
+        "es": "Negocio",
+        "en": "Business",
+        "fields": [
+          {
+            "name": "businessName",
+            "es": "Nombre del negocio",
+            "en": "Business name",
+            "type": "text"
+          },
+          {
+            "name": "businessFid",
+            "es": "FID / EIN",
+            "en": "FID / EIN",
+            "type": "text"
+          },
+          {
+            "name": "cid",
+            "es": "CID",
+            "en": "CID",
+            "type": "text"
+          },
+          {
+            "name": "businessAddress",
+            "es": "Dirección",
+            "en": "Address",
+            "type": "text",
+            "full": true
+          },
+          {
+            "name": "state",
+            "es": "Estado",
+            "en": "State",
+            "type": "state"
+          },
+          {
+            "name": "city",
+            "es": "Ciudad",
+            "en": "City",
+            "type": "city"
+          },
+          {
+            "name": "zip",
+            "es": "Código postal",
+            "en": "ZIP",
+            "type": "text"
+          },
+          {
+            "name": "website",
+            "es": "Sitio web",
+            "en": "Website",
+            "type": "text"
+          }
         ]
       },
       {
-        es: 'Contacto',
-        en: 'Contact',
-        fields: [
-          f('contactName', 'Nombre de contacto', 'Contact name'),
-          f('contactPhone', 'Tel. contacto', 'Contact phone', 'tel'),
-          f('contactCell', 'Celular contacto', 'Contact cell', 'tel'),
-          f('bizPhone', 'Tel. negocio', 'Business phone', 'tel'),
-          f('bizCell', 'Celular negocio', 'Business cell', 'tel'),
-          f('bizEmail', 'Correo del negocio', 'Business email', 'email')
+        "es": "Contacto",
+        "en": "Contact",
+        "fields": [
+          {
+            "name": "contactName",
+            "es": "Nombre de contacto",
+            "en": "Contact name",
+            "type": "text"
+          },
+          {
+            "name": "contactPhone",
+            "es": "Tel. contacto",
+            "en": "Contact phone",
+            "type": "tel"
+          },
+          {
+            "name": "contactCell",
+            "es": "Celular contacto",
+            "en": "Contact cell",
+            "type": "tel"
+          },
+          {
+            "name": "bizPhone",
+            "es": "Tel. negocio",
+            "en": "Business phone",
+            "type": "tel"
+          },
+          {
+            "name": "bizCell",
+            "es": "Celular negocio",
+            "en": "Business cell",
+            "type": "tel"
+          },
+          {
+            "name": "bizEmail",
+            "es": "Correo del negocio",
+            "en": "Business email",
+            "type": "email"
+          }
         ]
       },
       {
-        es: 'Banco',
-        en: 'Bank',
-        fields: [
-          f('bankName', 'Nombre del banco', 'Bank name', 'bank'),
-          f('accountNumber', 'Número de cuenta', 'Account number'),
-          f('rtn', 'Número de ruta', 'Routing number'),
-          f('duaAcct', 'Cuenta DUA', 'DUA account'),
-          f('additionalBankInfo', 'Info bancaria adicional', 'Additional bank info', 'textarea', true)
+        "es": "Banco",
+        "en": "Bank",
+        "fields": [
+          {
+            "name": "bankName",
+            "es": "Nombre del banco",
+            "en": "Bank name",
+            "type": "bank"
+          },
+          {
+            "name": "accountNumber",
+            "es": "Número de cuenta",
+            "en": "Account number",
+            "type": "text"
+          },
+          {
+            "name": "rtn",
+            "es": "Número de ruta",
+            "en": "Routing number",
+            "type": "text"
+          },
+          {
+            "name": "duaAcct",
+            "es": "Cuenta DUA",
+            "en": "DUA account",
+            "type": "text"
+          },
+          {
+            "name": "additionalBankInfo",
+            "es": "Info bancaria adicional",
+            "en": "Additional bank info",
+            "type": "textarea",
+            "full": true
+          }
         ]
       },
       {
-        es: 'Empleados y nómina',
-        en: 'Employees & payroll',
-        fields: [
-          f('employees', 'Empleados', 'Employees', 'number'),
-          f('fullTime', 'Tiempo completo', 'Full time', 'number'),
-          f('partTime', 'Medio tiempo', 'Part time', 'number'),
-          f('contractors', 'Contratistas', 'Contractors', 'number'),
-          f('hasPayroll', '¿Tiene nómina?', 'Has payroll?', 'yesno'),
-          f('bookkeeping', '¿Lleva contabilidad?', 'Bookkeeping?', 'yesno')
+        "es": "Empleados y nómina",
+        "en": "Employees & payroll",
+        "fields": [
+          {
+            "name": "employees",
+            "es": "Empleados",
+            "en": "Employees",
+            "type": "number"
+          },
+          {
+            "name": "fullTime",
+            "es": "Tiempo completo",
+            "en": "Full time",
+            "type": "number"
+          },
+          {
+            "name": "partTime",
+            "es": "Medio tiempo",
+            "en": "Part time",
+            "type": "number"
+          },
+          {
+            "name": "contractors",
+            "es": "Contratistas",
+            "en": "Contractors",
+            "type": "number"
+          },
+          {
+            "name": "hasPayroll",
+            "es": "¿Tiene nómina?",
+            "en": "Has payroll?",
+            "type": "yesno"
+          },
+          {
+            "name": "bookkeeping",
+            "es": "¿Lleva contabilidad?",
+            "en": "Bookkeeping?",
+            "type": "yesno"
+          }
         ]
       },
       {
-        es: 'Accesos',
-        en: 'Credentials',
-        fields: [
-          f('username', 'Usuario', 'Username'),
-          f('pin', 'PIN', 'PIN'),
-          f('securityQuestion', 'Pregunta de seguridad', 'Security question', 'text', true)
+        "es": "Accesos",
+        "en": "Credentials",
+        "fields": [
+          {
+            "name": "username",
+            "es": "Usuario",
+            "en": "Username",
+            "type": "text"
+          },
+          {
+            "name": "pin",
+            "es": "PIN",
+            "en": "PIN",
+            "type": "text"
+          },
+          {
+            "name": "securityQuestion",
+            "es": "Pregunta de seguridad",
+            "en": "Security question",
+            "type": "text",
+            "full": true
+          }
         ]
       }
     ]
   },
-
   {
-    id: 'daycare',
-    es: 'Guardería (DayCare)',
-    en: 'DayCare',
-    icon: '🧸',
-    sections: [
+    "id": "daycare",
+    "es": "Guardería (DayCare)",
+    "en": "DayCare",
+    "icon": "🧸",
+    "sections": [
       {
-        es: 'General',
-        en: 'General',
-        fields: [
-          f('taxYear', 'Año fiscal', 'Tax year', 'number'),
-          f('businessName', 'Nombre del negocio', 'Business name'),
-          f('providerId', 'ID del proveedor', 'Provider ID'),
-          f('clientName', 'Nombre del cliente', 'Client name'),
-          f('email', 'Correo', 'Email', 'email')
+        "es": "General",
+        "en": "General",
+        "fields": [
+          {
+            "name": "taxYear",
+            "es": "Año fiscal",
+            "en": "Tax year",
+            "type": "number"
+          },
+          {
+            "name": "businessName",
+            "es": "Nombre del negocio",
+            "en": "Business name",
+            "type": "text"
+          },
+          {
+            "name": "providerId",
+            "es": "ID del proveedor",
+            "en": "Provider ID",
+            "type": "text"
+          },
+          {
+            "name": "clientName",
+            "es": "Nombre del cliente",
+            "en": "Client name",
+            "type": "text"
+          },
+          {
+            "name": "email",
+            "es": "Correo",
+            "en": "Email",
+            "type": "email"
+          }
         ]
       },
       {
-        es: 'Pagos',
-        en: 'Payments',
-        fields: [
-          money('amountPaid', 'Monto pagado', 'Amount paid'),
-          f('childrenInfo', 'Niños (nombre, fecha nac., monto)', 'Children (name, DOB, amount)', 'textarea', true)
+        "es": "Pagos",
+        "en": "Payments",
+        "fields": [
+          {
+            "name": "amountPaid",
+            "es": "Monto pagado",
+            "en": "Amount paid",
+            "type": "money"
+          },
+          {
+            "name": "childrenInfo",
+            "es": "Niños (nombre, fecha nac., monto)",
+            "en": "Children (name, DOB, amount)",
+            "type": "textarea",
+            "full": true
+          }
         ]
       }
     ]
   },
-
   {
-    id: 'employee',
-    es: 'Empleado (alta)',
-    en: 'Employee (onboarding)',
-    icon: '👔',
-    sections: [
+    "id": "employee",
+    "es": "Empleado (alta)",
+    "en": "Employee (onboarding)",
+    "icon": "👔",
+    "sections": [
       {
-        es: 'Datos del empleado',
-        en: 'Employee data',
-        fields: [
-          f('firstName', 'Nombre', 'First name'),
-          f('lastName', 'Apellido', 'Last name'),
-          f('companyName', 'Empresa', 'Company name'),
-          f('dob', 'Fecha de nacimiento', 'Date of birth', 'date'),
-          f('ssn', 'SSN', 'SSN'),
-          f('email', 'Correo', 'Email', 'email'),
-          f('hireDate', 'Fecha de contratación', 'Hire date', 'date'),
-          ...COMMON_ADDR
+        "es": "Datos del empleado",
+        "en": "Employee data",
+        "fields": [
+          {
+            "name": "firstName",
+            "es": "Nombre",
+            "en": "First name",
+            "type": "text"
+          },
+          {
+            "name": "lastName",
+            "es": "Apellido",
+            "en": "Last name",
+            "type": "text"
+          },
+          {
+            "name": "companyName",
+            "es": "Empresa",
+            "en": "Company name",
+            "type": "text"
+          },
+          {
+            "name": "dob",
+            "es": "Fecha de nacimiento",
+            "en": "Date of birth",
+            "type": "date"
+          },
+          {
+            "name": "ssn",
+            "es": "SSN",
+            "en": "SSN",
+            "type": "text"
+          },
+          {
+            "name": "email",
+            "es": "Correo",
+            "en": "Email",
+            "type": "email"
+          },
+          {
+            "name": "hireDate",
+            "es": "Fecha de contratación",
+            "en": "Hire date",
+            "type": "date"
+          },
+          {
+            "name": "address",
+            "es": "Dirección",
+            "en": "Address",
+            "type": "text",
+            "full": true
+          },
+          {
+            "name": "state",
+            "es": "Estado",
+            "en": "State",
+            "type": "state"
+          },
+          {
+            "name": "city",
+            "es": "Ciudad",
+            "en": "City",
+            "type": "city"
+          },
+          {
+            "name": "zip",
+            "es": "Código postal",
+            "en": "ZIP",
+            "type": "text"
+          }
         ]
       }
     ]
   },
-
   {
-    id: 'payroll',
-    es: 'Nómina (configuración)',
-    en: 'Payroll (setup)',
-    icon: '💵',
-    sections: [
+    "id": "payroll",
+    "es": "Nómina (configuración)",
+    "en": "Payroll (setup)",
+    "icon": "💵",
+    "sections": [
       {
-        es: 'General',
-        en: 'General',
-        fields: [
-          f('email', 'Correo', 'Email', 'email'),
-          f('startDate', 'Fecha inicio', 'Start date', 'date'),
-          f('endDate', 'Fecha fin', 'End date', 'date'),
-          f('firstCheckDate', 'Primer cheque', 'First check date', 'date'),
-          f('state', 'Estado', 'State'),
-          f('suiRate', 'Tasa SUI', 'SUI rate')
+        "es": "General",
+        "en": "General",
+        "fields": [
+          {
+            "name": "email",
+            "es": "Correo",
+            "en": "Email",
+            "type": "email"
+          },
+          {
+            "name": "startDate",
+            "es": "Fecha inicio",
+            "en": "Start date",
+            "type": "date"
+          },
+          {
+            "name": "endDate",
+            "es": "Fecha fin",
+            "en": "End date",
+            "type": "date"
+          },
+          {
+            "name": "firstCheckDate",
+            "es": "Primer cheque",
+            "en": "First check date",
+            "type": "date"
+          },
+          {
+            "name": "state",
+            "es": "Estado",
+            "en": "State",
+            "type": "text"
+          },
+          {
+            "name": "suiRate",
+            "es": "Tasa SUI",
+            "en": "SUI rate",
+            "type": "text"
+          }
         ]
       },
       {
-        es: 'Empleados',
-        en: 'Employees',
-        fields: [
-          f('employeesInfo', 'Empleados (nombre, SSN por línea)', 'Employees (name, SSN per line)', 'textarea', true)
+        "es": "Empleados",
+        "en": "Employees",
+        "fields": [
+          {
+            "name": "employeesInfo",
+            "es": "Empleados (nombre, SSN por línea)",
+            "en": "Employees (name, SSN per line)",
+            "type": "textarea",
+            "full": true
+          }
         ]
       }
     ]
   }
 ];
-
-export function findFormDef(id: string): FormDef | undefined {
-  return FORM_DEFINITIONS.find((d) => d.id === id);
-}

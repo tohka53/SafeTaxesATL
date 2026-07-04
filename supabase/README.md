@@ -1,4 +1,4 @@
-# Supabase — Safe Taxes ATL
+# Supabase — Tax CRM
 
 ## 1. Database
 
@@ -37,8 +37,11 @@ supabase login
 supabase link --project-ref ncjicryfnutglupcgpqt
 
 # secrets (Resend account → API key, and a verified sender domain)
+# BRAND_NAME is the only brand text baked into the function — set it per
+# deployment/location (see src/environments for the frontend equivalent).
 supabase secrets set RESEND_API_KEY=re_xxxxx
-supabase secrets set MAIL_FROM="Safe Taxes ATL <noreply@yourdomain.com>"
+supabase secrets set MAIL_FROM="Your Business Name <noreply@yourdomain.com>"
+supabase secrets set BRAND_NAME="Your Business Name"
 
 # deploy
 supabase functions deploy send-tax-email --no-verify-jwt

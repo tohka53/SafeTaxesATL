@@ -5,13 +5,14 @@ import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@core/services/auth.service';
 import { TaxFormService } from '@core/services/tax-form.service';
 import { ProfileService } from '@core/services/profile.service';
+import { FormDefService } from '@core/services/form-def.service';
 import { FormStatus, TaxForm } from '@core/models/tax-form.model';
 import {
   IntakeValue,
   intakeToTaxForm,
   dynamicToTaxForm
 } from '@core/models/intake.util';
-import { FormDef, findFormDef } from '@core/models/form-def.model';
+import { FormDef } from '@core/models/form-def.model';
 import { Profile } from '@core/models/profile.model';
 import { decodeId } from '@core/utils/crypto-id';
 
@@ -37,6 +38,7 @@ export class FormEditorComponent implements OnInit {
     private readonly auth: AuthService,
     private readonly taxForms: TaxFormService,
     private readonly profiles: ProfileService,
+    private readonly formDefs: FormDefService,
     private readonly translate: TranslateService
   ) {}
 
@@ -61,7 +63,7 @@ export class FormEditorComponent implements OnInit {
 
     this.isCustom = this.formType === 'client_profile';
     if (!this.isCustom) {
-      this.def = findFormDef(this.formType) ?? null;
+      this.def = await this.formDefs.getById(this.formType);
       if (!this.def) {
         this.isCustom = true;
         this.formType = 'client_profile';

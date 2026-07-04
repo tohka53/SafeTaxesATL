@@ -14,6 +14,7 @@ import { IntakeValue } from '@core/models/intake.util';
 import { US_STATES } from '@core/data/us-states';
 import { citiesForState } from '@core/data/us-cities';
 import { US_BANKS } from '@core/data/us-banks';
+import { environment } from '@env/environment';
 
 /**
  * Comprehensive "Client Profile" intake form — a modernized, bilingual port of
@@ -47,6 +48,7 @@ export class ClientProfileFormComponent implements OnInit, OnChanges {
   showAutofill = false;
   readonly states = US_STATES;
   readonly banks = US_BANKS;
+  readonly brandName = environment.brandName;
 
   /** Cities for the given state; keeps an already-saved custom value selectable. */
   cityOptions(state: unknown, current: unknown): string[] {

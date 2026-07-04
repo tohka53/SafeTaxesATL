@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "safe-taxes-atl": {
+    "tax-crm": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -20,7 +20,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/safe-taxes-atl",
+            "outputPath": "dist/tax-crm",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
@@ -63,10 +63,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "safe-taxes-atl:build:production"
+              "buildTarget": "tax-crm:build:production"
             },
             "development": {
-              "buildTarget": "safe-taxes-atl:build:development"
+              "buildTarget": "tax-crm:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -86,5 +86,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "bb06f9b0-8d63-434c-b6bb-edfcd2c0ffe1"
   }
 }

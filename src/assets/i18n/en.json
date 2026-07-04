@@ -1,7 +1,6 @@
 {
   "app": {
-    "name": "Safe Taxes ATL",
-    "tagline": "Trusted tax preparation in Atlanta"
+    "tagline": "Trusted tax preparation you can count on"
   },
   "nav": {
     "home": "Home",
@@ -201,7 +200,39 @@
   "security": {
     "notice": "Your data (SSN, bank account) is transmitted securely and only authorized staff can view it."
   },
-  "nav2": { "forms": "Forms", "external": "External forms", "contacts": "Contacts", "templates": "Templates" },
+  "nav2": { "forms": "Forms", "external": "External forms", "contacts": "Contacts", "templates": "Templates", "formBuilder": "Form Builder" },
+  "fb": {
+    "title": "Form Builder",
+    "subtitle": "Add, edit or remove dynamic forms and their fields — no code deploy needed.",
+    "new": "New form",
+    "seed": "Load starter forms",
+    "empty": "No dynamic forms yet.",
+    "form": "Form",
+    "fieldsCol": "Fields",
+    "sections": "sections",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "id": "ID (unique)",
+    "idHint": "Lowercase letters, numbers and underscores only. Cannot be changed after creating the form.",
+    "icon": "Icon (emoji)",
+    "titleEs": "Title (Spanish)",
+    "titleEn": "Title (English)",
+    "order": "Display order",
+    "sectionEs": "Section title (Spanish)",
+    "sectionEn": "Section title (English)",
+    "fieldKey": "Field key",
+    "fieldEs": "Label (Spanish)",
+    "fieldEn": "Label (English)",
+    "fullWidth": "Full width",
+    "addSection": "Add section",
+    "addField": "Add field",
+    "addOption": "Add option",
+    "optionValue": "Value",
+    "optionEs": "Option (Spanish)",
+    "optionEn": "Option (English)"
+  },
   "tpl": {
     "title": "Message templates",
     "subtitle": "Create reusable email and SMS templates for contacting clients.",
@@ -328,7 +359,7 @@
     "haveCard": "Do you have the insurance card with you?",
     "throughEmployer": "Purchased through employer?",
     "customerSignature": "Customer's signature", "spouseSignature": "Spouse's signature", "date": "Date",
-    "legal": "By signing this form, I certify that all information provided to Safe Taxes ATL is true and correct to the best of my knowledge. I understand that any IRS assessments, penalties or audits due to omissions or erroneous information are my responsibility, and I agree to pay for document preparation at the time of service.",
+    "legal": "By signing this form, I certify that all information provided to {{brand}} is true and correct to the best of my knowledge. I understand that any IRS assessments, penalties or audits due to omissions or erroneous information are my responsibility, and I agree to pay for document preparation at the time of service.",
     "saved": "Form saved successfully."
   },
   "footer": {

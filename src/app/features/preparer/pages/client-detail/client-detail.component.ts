@@ -6,6 +6,7 @@ import { ProfileService } from '@core/services/profile.service';
 import { TaxFormService } from '@core/services/tax-form.service';
 import { DocumentService } from '@core/services/document.service';
 import { PdfService } from '@core/services/pdf.service';
+import { FormDefService } from '@core/services/form-def.service';
 import { Profile } from '@core/models/profile.model';
 import {
   FormStatus,
@@ -14,7 +15,7 @@ import {
   TaxProcessStatus
 } from '@core/models/tax-form.model';
 import { TaxDocument } from '@core/models/document.model';
-import { findFormDef } from '@core/models/form-def.model';
+import { CLIENT_PROFILE_FORM_DEF, FormDef } from '@core/models/form-def.model';
 import { CaseService } from '@core/services/case.service';
 import {
   CASE_STATUSES,
@@ -40,6 +41,8 @@ export class ClientDetailComponent implements OnInit {
   years: number[] = [];
   documents: TaxDocument[] = [];
   openYear: number | null = null;
+  /** All dynamic form defs (incl. inactive/archived ones) so labels/PDFs still work for historical submissions. */
+  formDefsCache: FormDef[] = [];
 
   uploadYear = new Date().getFullYear();
   uploadYears: number[] = [];
@@ -63,6 +66,7 @@ export class ClientDetailComponent implements OnInit {
     private readonly taxForms: TaxFormService,
     private readonly docs: DocumentService,
     private readonly pdf: PdfService,
+    private readonly formDefs: FormDefService,
     private readonly caseService: CaseService,
     private readonly translate: TranslateService
   ) {}
@@ -128,8 +132,12 @@ export class ClientDetailComponent implements OnInit {
   }
 
   formTypeLabel(type: string | undefined): string {
-    const d = findFormDef(type ?? 'client_profile');
-    return d ? (this.lang === 'en' ? d.en : d.es) : (type ?? '');
+    const id = type ?? 'client_profile';
+    if (id === 'client_profile') {
+      return this.lang === 'en' ? CLIENT_PROFILE_FORM_DEF.en : CLIENT_PROFILE_FORM_DEF.es;
+    }
+    const d = this.formDefsCache.find((x) => x.id === id);
+    return d ? (this.lang === 'en' ? d.en : d.es) : id;
   }
 
   async ngOnInit(): Promise<void> {
@@ -142,13 +150,15 @@ export class ClientDetailComponent implements OnInit {
   private async reload(): Promise<void> {
     this.loading = true;
     try {
-      const [profile, grouped, documents] = await Promise.all([
+      const [profile, grouped, documents, formDefsCache] = await Promise.all([
         this.profiles.get(this.clientId),
         this.taxForms.listByUserGroupedByYear(this.clientId),
-        this.docs.listByUser(this.clientId)
+        this.docs.listByUser(this.clientId),
+        this.formDefs.list({ includeInactive: true })
       ]);
       this.profile = profile;
       this.grouped = grouped;
+      this.formDefsCache = formDefsCache;
       this.years = Object.keys(grouped)
         .map(Number)
         .sort((a, b) => b - a);
@@ -223,7 +233,7 @@ export class ClientDetailComponent implements OnInit {
       this.pdf.downloadProfile(form.extra ?? {});
       return;
     }
-    const d = findFormDef(type);
+    const d = this.formDefsCache.find((x) => x.id === type);
     if (d) {
       this.pdf.downloadGeneric(d, form.extra ?? {}, this.lang);
     } else {

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '@core/services/auth.service';
 import { UserRole } from '@core/models/user-role.enum';
+import { environment } from '@env/environment';
 
 @Component({
   selector: 'app-navbar',
@@ -10,6 +11,8 @@ import { UserRole } from '@core/models/user-role.enum';
 })
 export class NavbarComponent {
   readonly UserRole = UserRole;
+  readonly brandName = environment.brandName;
+  readonly brandInitials = environment.brandInitials;
   mobileOpen = false;
 
   constructor(

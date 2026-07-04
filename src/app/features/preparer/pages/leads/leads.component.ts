@@ -3,8 +3,9 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { LeadService } from '@core/services/lead.service';
 import { PdfService } from '@core/services/pdf.service';
+import { FormDefService } from '@core/services/form-def.service';
 import { Lead } from '@core/models/lead.model';
-import { FORM_DEFINITIONS, FormDef, findFormDef } from '@core/models/form-def.model';
+import { CLIENT_PROFILE_FORM_DEF, FormDef } from '@core/models/form-def.model';
 
 /** Admin-only: every form submitted from the public site, with free filtering. */
 @Component({
@@ -17,17 +18,23 @@ export class LeadsComponent implements OnInit {
   q = '';
   typeFilter = '';
   expandedId: string | null = null;
-  readonly defs: FormDef[] = FORM_DEFINITIONS;
+  defs: FormDef[] = [CLIENT_PROFILE_FORM_DEF];
 
   constructor(
     private readonly leadService: LeadService,
     private readonly pdf: PdfService,
+    private readonly formDefs: FormDefService,
     public readonly translate: TranslateService
   ) {}
 
   async ngOnInit(): Promise<void> {
     try {
-      this.leads = await this.leadService.list();
+      const [leads, dynamicDefs] = await Promise.all([
+        this.leadService.list(),
+        this.formDefs.list({ includeInactive: true })
+      ]);
+      this.leads = leads;
+      this.defs = [CLIENT_PROFILE_FORM_DEF, ...dynamicDefs];
     } catch (e) {
       console.warn('leads load', e);
     } finally {
@@ -40,8 +47,9 @@ export class LeadsComponent implements OnInit {
   }
 
   typeLabel(t: string | undefined): string {
-    const d = findFormDef(t ?? 'client_profile');
-    return d ? (this.lang === 'en' ? d.en : d.es) : (t ?? '');
+    const id = t ?? 'client_profile';
+    const d = this.defs.find((x) => x.id === id);
+    return d ? (this.lang === 'en' ? d.en : d.es) : id;
   }
 
   defLabel(d: FormDef): string {
@@ -84,7 +92,7 @@ export class LeadsComponent implements OnInit {
       this.pdf.downloadProfile(l.extra ?? {});
       return;
     }
-    const d = findFormDef(t);
+    const d = this.defs.find((x) => x.id === t);
     if (d) {
       this.pdf.downloadGeneric(d, l.extra ?? {}, this.lang);
     }

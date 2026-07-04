@@ -9,6 +9,7 @@ import { ClientDetailComponent } from './pages/client-detail/client-detail.compo
 import { LeadsComponent } from './pages/leads/leads.component';
 import { ContactsComponent } from './pages/contacts/contacts.component';
 import { TemplatesComponent } from './pages/templates/templates.component';
+import { FormBuilderComponent } from './pages/form-builder/form-builder.component';
 
 const routes: Routes = [
   {
@@ -18,6 +19,7 @@ const routes: Routes = [
       { path: '', component: ClientsComponent },
       { path: 'contacts', component: ContactsComponent },
       { path: 'templates', component: TemplatesComponent },
+      { path: 'form-builder', component: FormBuilderComponent },
       {
         path: 'leads',
         component: LeadsComponent,

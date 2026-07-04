@@ -7,7 +7,7 @@ import { environment } from '@env/environment';
  * NOTE: this is OBFUSCATION, not encryption — the key ships in the bundle. Real
  * data protection is enforced server-side by Supabase Row Level Security.
  */
-const KEY = environment.idKey || 'safetaxesatl';
+const KEY = environment.idKey || 'tax-crm-app';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function xorStr(s: string): string {

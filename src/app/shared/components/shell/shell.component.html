@@ -5,8 +5,8 @@
     [class.-translate-x-full]="!sidebarOpen"
   >
     <div class="flex h-16 items-center gap-2 border-b border-gray-200 px-5">
-      <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-sm font-extrabold text-white">ST</span>
-      <span class="font-extrabold tracking-tight text-gray-900">Safe Taxes <span class="text-brand-600">ATL</span></span>
+      <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-sm font-extrabold text-white">{{ brandInitials }}</span>
+      <span class="font-extrabold tracking-tight text-brand-600">{{ brandName }}</span>
     </div>
 
     <nav class="flex flex-col gap-1 p-3" (click)="sidebarOpen = false">
@@ -42,6 +42,10 @@
              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
             <span>📝</span> {{ 'nav2.templates' | translate }}
           </a>
+          <a routerLink="/preparer/form-builder" routerLinkActive="bg-brand-50 text-brand-700"
+             class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+            <span>🧩</span> {{ 'nav2.formBuilder' | translate }}
+          </a>
           <a *ngIf="isAdmin(p.role)" routerLink="/preparer/leads" routerLinkActive="bg-brand-50 text-brand-700"
              class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
             <span>📥</span> {{ 'nav2.external' | translate }}
@@ -60,7 +64,7 @@
       <button type="button" (click)="sidebarOpen = !sidebarOpen" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 md:hidden" aria-label="menu">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
-      <span class="hidden text-sm font-semibold text-gray-500 md:block">{{ 'app.name' | translate }}</span>
+      <span class="hidden text-sm font-semibold text-gray-500 md:block">{{ brandName }}</span>
       <div class="flex items-center gap-3">
         <app-language-switcher></app-language-switcher>
         <div class="hidden text-right sm:block" *ngIf="auth.profile$ | async as p">
@@ -76,7 +80,7 @@
     </main>
 
     <footer class="border-t border-gray-200 bg-white px-4 py-3 text-center text-xs text-gray-400">
-      © {{ year }} Safe Taxes ATL · {{ 'footer.madeBy' | translate }}
+      © {{ year }} {{ brandName }} · {{ 'footer.madeBy' | translate }}
       <a href="https://www.techsolutionsgt.dev/" target="_blank" rel="noopener noreferrer" class="font-semibold text-brand-600 hover:underline">TechSolutions</a>
     </footer>
   </div>

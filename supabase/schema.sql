@@ -1,6 +1,9 @@
 -- =====================================================================
---  Safe Taxes ATL — Supabase schema + Row Level Security
+--  Tax CRM — Supabase schema + Row Level Security
 --  Run this in the Supabase SQL Editor (Dashboard → SQL → New query).
+--  Brand name/logo live in the frontend (src/environments) and Edge Function
+--  secrets (BRAND_NAME) — nothing in this schema is tied to a specific tax
+--  office, so the same schema works for any deployment/location.
 --
 --  SECURITY NOTE (read me):
 --  This app stores PII (SSN, US bank details). RLS below restricts reads to
@@ -303,6 +306,53 @@ create policy message_templates_staff on public.message_templates
   for all using (public.is_staff()) with check (public.is_staff());
 
 -- =====================================================================
+--  FORM DEFINITIONS  (editable dynamic form types — Schedule C, Real Estate,
+--  Business Intake, DayCare, Employee, Payroll — managed from the app by
+--  preparer/admin via the Form Builder, instead of hardcoded in the frontend)
+-- =====================================================================
+create table if not exists public.form_definitions (
+  id          text primary key,
+  es          text not null,
+  en          text not null,
+  icon        text not null default '📄',
+  sections    jsonb not null default '[]'::jsonb,
+  is_active   boolean not null default true,
+  sort_order  int not null default 0,
+  created_by  uuid references auth.users(id),
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+create index if not exists idx_form_definitions_active on public.form_definitions(is_active, sort_order);
+
+drop trigger if exists trg_form_definitions_updated on public.form_definitions;
+create trigger trg_form_definitions_updated before update on public.form_definitions
+  for each row execute function public.set_updated_at();
+
+alter table public.form_definitions enable row level security;
+
+-- Public read (anon included): the public landing form needs the field
+-- definitions to render, even for anonymous visitors. No sensitive data here.
+drop policy if exists form_definitions_select_public on public.form_definitions;
+create policy form_definitions_select_public on public.form_definitions
+  for select to anon, authenticated using (true);
+
+drop policy if exists form_definitions_write_staff on public.form_definitions;
+create policy form_definitions_write_staff on public.form_definitions
+  for insert to authenticated with check (public.is_staff());
+
+drop policy if exists form_definitions_update_staff on public.form_definitions;
+create policy form_definitions_update_staff on public.form_definitions
+  for update to authenticated using (public.is_staff()) with check (public.is_staff());
+
+drop policy if exists form_definitions_delete_staff on public.form_definitions;
+create policy form_definitions_delete_staff on public.form_definitions
+  for delete to authenticated using (public.is_staff());
+
+-- Seed data (the 6 forms) lives in migration-form-definitions.sql so this
+-- file stays pure schema — run that file once after this one.
+
+-- =====================================================================
 --  MESSAGE LOG  (record of sent email/SMS to avoid duplicate sends)
 -- =====================================================================
 create table if not exists public.message_log (
@@ -352,9 +402,10 @@ create policy "tax docs owner read" on storage.objects
 -- =====================================================================
 grant usage on schema public to anon, authenticated;
 grant select, insert, update, delete
-  on public.profiles, public.tax_forms, public.documents, public.crm_contacts, public.message_templates, public.message_log, public.tax_cases to authenticated;
+  on public.profiles, public.tax_forms, public.documents, public.crm_contacts, public.message_templates, public.message_log, public.tax_cases, public.form_definitions to authenticated;
 grant select, insert, update on public.leads to authenticated;
 grant insert on public.leads to anon;   -- anonymous landing submissions only
+grant select on public.form_definitions to anon;  -- public landing form needs to read field defs
 
 -- =====================================================================
 --  MAKE YOURSELF A PREPARER (run once, after you sign up)

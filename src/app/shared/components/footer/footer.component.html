@@ -4,8 +4,8 @@
       <!-- Brand -->
       <div>
         <div class="flex items-center gap-2">
-          <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-xs font-extrabold text-white">ST</span>
-          <span class="font-bold text-gray-900">Safe Taxes ATL</span>
+          <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-xs font-extrabold text-white">{{ brandInitials }}</span>
+          <span class="font-bold text-gray-900">{{ brandName }}</span>
         </div>
         <p class="mt-3 max-w-xs text-sm text-gray-500">{{ 'app.tagline' | translate }}</p>
       </div>
@@ -29,7 +29,7 @@
     </div>
 
     <div class="mt-8 flex flex-col items-center justify-between gap-3 border-t border-gray-100 pt-6 text-xs text-gray-500 sm:flex-row">
-      <p>© {{ year }} Safe Taxes ATL. {{ 'footer.rights' | translate }}</p>
+      <p>© {{ year }} {{ brandName }}. {{ 'footer.rights' | translate }}</p>
       <p>
         {{ 'footer.madeBy' | translate }}
         <a href="https://www.techsolutionsgt.dev/" target="_blank" rel="noopener noreferrer" class="font-semibold text-brand-600 hover:underline">

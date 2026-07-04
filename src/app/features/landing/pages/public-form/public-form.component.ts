@@ -6,9 +6,11 @@ import { AuthService } from '@core/services/auth.service';
 import { LeadService } from '@core/services/lead.service';
 import { EmailService } from '@core/services/email.service';
 import { PdfService } from '@core/services/pdf.service';
+import { FormDefService } from '@core/services/form-def.service';
 import { IntakeValue } from '@core/models/intake.util';
-import { FormDef, findFormDef } from '@core/models/form-def.model';
+import { FormDef } from '@core/models/form-def.model';
 import { Profile } from '@core/models/profile.model';
+import { environment } from '@env/environment';
 
 /** Public filler for any form type: PDF download + lead record + email. */
 @Component({
@@ -32,14 +34,15 @@ export class PublicFormComponent implements OnInit {
     private readonly lead: LeadService,
     private readonly email: EmailService,
     private readonly pdf: PdfService,
+    private readonly formDefs: FormDefService,
     private readonly translate: TranslateService
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.formType = this.route.snapshot.paramMap.get('type') ?? 'client_profile';
     this.isCustom = this.formType === 'client_profile';
     if (!this.isCustom) {
-      this.def = findFormDef(this.formType) ?? null;
+      this.def = await this.formDefs.getById(this.formType);
       if (!this.def) {
         this.isCustom = true;
         this.formType = 'client_profile';
@@ -128,7 +131,7 @@ export class PublicFormComponent implements OnInit {
       email,
       phone,
       pdfBlob,
-      pdfName: `SafeTaxesATL_${this.formType}.pdf`,
+      pdfName: `${environment.brandSlug}_${this.formType}.pdf`,
       formTitle: this.title
     });
     this.emailSent = r.sent;

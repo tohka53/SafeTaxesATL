@@ -1,7 +1,7 @@
 {
-  "name": "safe-taxes-atl",
+  "name": "tax-crm",
   "version": "0.1.0",
-  "description": "CRM interno para Safe Taxes ATL (preparación de impuestos USA) — Angular 18 + Supabase + Tailwind 3 + Flowbite",
+  "description": "CRM interno para preparación de impuestos (USA) — Angular 18 + Supabase + Tailwind 3 + Flowbite. Marca configurable en src/environments para desplegar distintas versiones por sede.",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

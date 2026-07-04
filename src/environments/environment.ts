@@ -4,6 +4,10 @@
  * The anon (public) key is safe to ship to the browser — Row Level Security
  * (see supabase/schema.sql) is what protects the data.  NEVER put the
  * service_role key in this file.
+ *
+ * MULTI-LOCATION: everything under `brand*` is the only thing you need to
+ * change to deploy a new, differently-branded version of this same app for
+ * another tax office / location. No other file should hardcode a brand name.
  */
 export const environment = {
   production: true,
@@ -15,7 +19,16 @@ export const environment = {
   // Todos los formularios nuevos se envían aquí (para pruebas/verificación).
   contactEmail: 'mecg1994@gmail.com',
   // Clave de ofuscación de IDs en la URL (no es seguridad real; ver RLS).
-  idKey: 'stATL-2026-k9',
-  // URL pública de la app (para los correos de confirmación, no localhost).
-  siteUrl: 'https://safetaxesatl.vercel.app'
+  idKey: 'txcrm-2026-k9',
+  // URL pública de esta instancia (para los correos de confirmación, no localhost).
+  // Cámbiala por el dominio real de cada despliegue/sede.
+  siteUrl: 'https://safetaxesatl.vercel.app',
+
+  // ---- Marca (edita esto por sede/versión) ----
+  // Nombre visible en navbar, footer, PDFs y correos.
+  brandName: 'Safe Taxes',
+  // Iniciales del logo (badge cuadrado).
+  brandInitials: 'ST',
+  // Prefijo para nombres de archivo descargados (sin espacios/acentos).
+  brandSlug: 'SafeTaxes'
 };

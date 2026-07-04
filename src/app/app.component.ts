@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { filter } from 'rxjs';
@@ -17,7 +18,9 @@ export class AppComponent implements OnInit {
 
   constructor(
     private readonly translate: TranslateService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly title: Title,
+    private readonly meta: Meta
   ) {
     const saved =
       (typeof localStorage !== 'undefined' && localStorage.getItem('lang')) ||
@@ -28,6 +31,14 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Brand name/tab title come from environment.brandName so a re-branded
+    // deploy for another location doesn't need to touch index.html.
+    this.title.setTitle(`${environment.brandName} — CRM`);
+    this.meta.updateTag({
+      name: 'description',
+      content: `${environment.brandName} — Preparación de impuestos USA. Portal de clientes y CRM interno.`
+    });
+
     // Flowbite needs to re-scan the DOM for interactive widgets after each
     // client-side navigation.
     this.router.events
